@@ -1,0 +1,22 @@
+# LangChain 相关（版本需要兼容）
+langchain==0.1.1
+langchain-core==0.1.23
+langchain-community==0.0.20
+langchain-text-splitters==0.0.1
+langsmith==0.0.87
+
+# 向量数据库
+chromadb==0.4.14
+
+# 搜索
+duckduckgo-search==4.2
+
+# Web 界面
+gradio==3.50.0
+
+# 阿里云 DashScope API
+dashscope
+
+# 其他依赖
+python-dotenv
+openai

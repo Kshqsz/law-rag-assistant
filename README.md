@@ -1,1 +1,231 @@
-# law-rag-assistant
+<div align="center">
+
+# 项目修改记录
+
+**修改者**: Kshqsz
+
+</div>
+
+---
+
+## 📅 2025-12-09 更新
+
+### 网页搜索功能修复
+
+- 修复 DuckDuckGo 网页搜索功能
+- 配置代理支持：`http://127.0.0.1:7890`
+- 使用稳定的后端：优先 `html` 后端，自动降级到 `lite` 后端
+- 添加随机延迟 (2-4秒) 避免触发 API 限速
+
+**测试结果**：
+
+```
+查询: "中国民法典 合同"
+✓ DuckDuckGo (html) 成功找到 3 条结果
+- 《中华人民共和国民法典》第三编 合同
+- 最高人民法院关于适用《中华人民共和国民法典》合同编通则若干问题的解释
+- 中华人民共和国民法典--合同编
+```
+
+---
+
+## 📅 2025-12-06 更新
+
+### 1. 代码优化重构
+
+- 重构 `law_ai/utils.py` - 优化 DashScopeEmbeddings 实现
+- 重构 `law_ai/loader.py` - 改进文档加载逻辑
+- 重构 `law_ai/splitter.py` - 优化文本分割器
+
+### 2. 项目配置
+
+- 删除 GitHub Actions 自动部署配置（原作者的服务器配置）
+- 更新 `requirements.txt` 依赖
+
+---
+
+## 📅 2025-12-05 更新
+
+**修改目的**: 将原项目从 OpenAI API 迁移到阿里云 DashScope（Qwen）API
+
+### 1. API 适配修改
+
+- **LLM 模型**: 从 `gpt-3.5-turbo` 改为 `qwen-max`（通过阿里云 DashScope OpenAI 兼容接口）
+- **Embedding 模型**: 自定义实现 `DashScopeEmbeddings` 类，使用阿里云原生 `text-embedding-v2` 模型
+
+### 2. 修改的文件
+
+| 文件                | 修改内容                                                                                |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| `law_ai/utils.py` | 新增 `DashScopeEmbeddings` 类，修改 `get_model()` 和 `get_embedding_model()` 函数 |
+| `.env`            | 配置阿里云 DashScope API Key 和模型参数                                                 |
+
+### 3. `.env` 配置示例
+
+```env
+# LLM 配置
+OPENAI_API_KEY=sk-你的阿里云DashScope-API-Key
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+MODEL_NAME=qwen-max
+
+# Embedding 配置
+EMBEDDING_MODEL=text-embedding-v2
+```
+
+---
+
+## 遇到的问题及解决方案
+
+### 问题: OpenAI 兼容层 Embedding 调用失败
+
+**错误信息**: `InvalidRequestError: Value error, contents is neither str nor list of str`
+
+**原因**: 旧版 `langchain` (0.1.x) 使用的 `openai` 库 (0.28.x) 与阿里云 DashScope 的 OpenAI 兼容接口不完全兼容。
+
+**解决方案**: 使用阿里云官方 `dashscope` SDK，自定义实现 `DashScopeEmbeddings` 类，彻底绕过兼容性问题。
+
+---
+
+## 运行结果
+
+- 向量数据库初始化成功，共导入个法律条文片段
+- Web UI 运行正常
+- 法律问答功能正常
+  ![1764936501657](image/README/1764936501657.png)
+
+---
+
+## 我对 RAG 的理解
+
+**RAG（检索增强生成）的核心流程：**
+
+1. **法律条文预处理**: 法律条文被提前拆分成小段，存储到向量数据库。
+2. **向量化**: Embedding 模型把这些段落以及用户的问题都转成向量。
+3. **语义检索**: 向量数据库根据"语义相似度"找到最相关的法律条文段落。（可选：重排序模型再对这些段落进行排序，挑最最相关的）
+4. **上下文注入**: 这些段落以文本的形式放进 LLM。
+5. **生成回答**: LLM 根据 **用户问题 + 检索到的法律条文** 生成最终回答（相当于"开卷考试"）
+
+**关于 Embedding 的两点补充：**
+
+1. Embedding 看起来有理解能力，但这只是表面现象——它实际上就是一个**较为精准的向量转换器**。
+2. Embedding 就像一个干翻译的，把中文问题和法律条文都翻译成"向量语言"（高维数值向量）；用户输入问题后，由**向量数据库使用内部算法**找到最为相近的条文。然后让LLM在开卷考试的情况下回答问题。
+
+---
+
+<div align="center">
+
+![Python version](https://img.shields.io/badge/python-3.9+-blue)
+[![web ui](https://img.shields.io/badge/WebUI-Gradio-important)](https://www.gradio.app/)
+[![Twitter follow](https://img.shields.io/twitter/follow/gradio?style=social&label=follow)](https://twitter.com/billvsme)
+
+</div>
+
+法律AI助手
+==========
+
+法律AI助手，法律RAG，通过倒入全部200+本法律手册、网页搜索内容结合LLM回答你的问题，并且给出对应的法规和网站，基于langchain，openai，chroma，duckduckgo-search, Gradio
+
+## Demo
+
+[https://law.vmaig.com/](https://law.vmaig.com/)
+
+**用户名**: username
+**密码**:  password
+
+## 原理
+
+基于langchain链式调用，先按条切分法律条文，导入向量数据Chroma。
+问答相关问题时，先通过相似度搜索向量数据，获取相关法律条文，然后通过DuckDuckGo互联网搜索相关网页，然后合并法律条文和网页内容，对问题进行回答。
+
+**初始化init**
+
+```mermaid
+flowchart LR
+    A[法律文件加载LawLoader] --> B[MarkdownHeaderTextSplitter]
+    subgraph 文件切分LawSplitter
+    B[MarkdownHeaderTextSplitter] --> C[RecursiveCharacterTextSplitter]
+    end
+    C --> E[Embedding]
+    E --> F[向量数据库Chroma]
+```
+
+**提问流程**
+
+```mermaid
+flowchart LR
+    A[提问] --> B[问题校验];
+    B -- 否 --> C1[请提问法律相关问题]
+    B -- 是 --> C2[法律Chain];
+    subgraph Law Chain 
+    C2 --> D[LLM]
+    subgraph MultiQuery Retriever
+    D --> E1[相似问题 01]
+    D --> E2[相似问题 02]
+    D --> E3[相似问题 03]
+    E1 --> F[向量数据库Chroma]
+    E2 --> F
+    E3 --> F
+    F --> H[法律docs]
+    end
+    C2 --> G[DuckDuckGo互联网搜索]
+    subgraph Web Retriever
+    G --> I[网页docs]
+    end
+    H --> K[合并combine]
+    I --> K
+    J[提问Prompt] --> K
+    K --> L[LLM]
+    L --> M[callback流输出]
+    end
+```
+
+## 初始化运行环境
+
+```
+# 创建.env 文件
+cp .env.example .env
+
+# 修改.env 中的内容
+vim .env
+
+# 安装venv环境
+python -m venv ~/.venv/law
+. ~/.venv/law
+pip install -r requirements.txt
+```
+
+## 初始化向量数据库
+
+```
+# 加载和切分法律手册，初始化向量数据库
+python manager.py --init
+```
+
+## 运行web ui
+
+```
+python manager.py --web
+```
+
+默认用户名/密码: username / password
+
+<a href="https://sm.ms/image/DbP3TiHZConUFe7" target="_blank"><img src="https://s2.loli.net/2023/10/20/DbP3TiHZConUFe7.png" ></a>
+
+## 运行对话
+
+```
+python manager.py --shell
+```
+
+<a href="https://sm.ms/image/7E4zMpbafCPvNxX" target="_blank"><img src="https://s2.loli.net/2023/10/19/7E4zMpbafCPvNxX.png"></a>
+
+## 配置修改
+
+如果你想修改回答中的法律条数和网页条数，可以修改config.py
+
+- 法律条数: LAW_VS_SEARCH_K
+- 网页条数: WEB_VS_SEARCH_K
+- web ui地址: WEB_HOST
+- web ui端口: WEB_PORT
+- web ui登录用户: WEB_USERNAME
+- web ui登录密码: WEB_PASSWORD
