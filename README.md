@@ -123,7 +123,191 @@ EMBEDDING_MODEL=text-embedding-v2
 法律AI助手
 ==========
 
-法律AI助手，法律RAG，通过倒入全部200+本法律手册、网页搜索内容结合LLM回答你的问题，并且给出对应的法规和网站，基于langchain，openai，chroma，duckduckgo-search, Gradio
+基于 RAG（检索增强生成）技术的法律智能问答系统，融合本地法律知识库与互联网实时信息，利用大语言模型对用户提出的自然语言法律问题进行精准理解、知识检索与可靠回答。
+
+## ✨ 功能特性
+
+- 🔐 **用户认证系统** - 注册、登录、JWT Token 认证
+- 💬 **对话历史管理** - 保存历史对话，随时查看和继续
+- 📄 **文档上传** - 上传法律文档，AI 结合文档内容回答
+- 📚 **法律条文引用** - 每个回答标注相关法律依据
+- 🌐 **网络检索** - 结合 DuckDuckGo 搜索获取最新信息
+- 🎨 **现代化界面** - 类似 ChatGPT 的交互体验
+
+## 🏗️ 技术架构
+
+| 层级 | 技术栈 |
+|------|--------|
+| 前端 | Streamlit |
+| 后端 | FastAPI + SQLAlchemy |
+| AI 模型 | Qwen (通义千问) via DashScope |
+| 向量数据库 | ChromaDB |
+| 网络检索 | DuckDuckGo |
+| RAG 框架 | LangChain |
+
+## 📁 项目结构
+
+```
+law-rag-assistant/
+├── backend/                    # FastAPI 后端
+│   ├── main.py                # 应用入口
+│   ├── auth.py                # 认证模块
+│   ├── database.py            # 数据库模型
+│   ├── law_service.py         # 法律问答服务
+│   ├── schemas.py             # Pydantic 模型
+│   └── routers/               # API 路由
+│       ├── auth.py            # 认证接口
+│       ├── chat.py            # 聊天接口
+│       ├── conversations.py   # 对话管理
+│       └── documents.py       # 文档管理
+├── frontend/                   # Streamlit 前端
+│   ├── app.py                 # 前端入口
+│   ├── api_client.py          # API 客户端
+│   └── components.py          # UI 组件
+├── law_ai/                     # RAG 核心模块
+│   ├── chain.py               # RAG 链
+│   ├── retriever.py           # 检索器
+│   ├── prompt.py              # 提示词模板
+│   ├── loader.py              # 文档加载
+│   ├── splitter.py            # 文本分割
+│   └── utils.py               # 工具函数
+├── Law-Book/                   # 法律知识库
+├── config.py                   # 配置文件
+├── requirements.txt            # 依赖清单
+├── start.sh                    # 一键启动脚本
+├── start_backend.sh            # 启动后端
+└── start_frontend.sh           # 启动前端
+```
+
+## 🚀 快速开始
+
+### 1. 环境准备
+
+```bash
+# 创建虚拟环境
+python -m venv venv311
+source venv311/bin/activate
+
+# 安装依赖
+pip install -r requirements.txt
+```
+
+### 2. 配置环境变量
+
+```bash
+# 复制环境变量示例
+cp .env.example .env
+
+# 编辑 .env 文件，填入你的 DashScope API Key
+vim .env
+```
+
+`.env` 配置示例：
+
+```env
+OPENAI_API_KEY=sk-你的阿里云DashScope-API-Key
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+MODEL_NAME=qwen-plus
+EMBEDDING_MODEL=text-embedding-v2
+SECRET_KEY=your-jwt-secret-key
+```
+
+### 3. 初始化向量数据库
+
+```bash
+# 加载法律文档并建立向量索引
+python manager.py --init
+```
+
+### 4. 启动服务
+
+**一键启动（推荐）：**
+
+```bash
+./start.sh
+```
+
+**分别启动：**
+
+```bash
+# 终端 1：启动后端
+./start_backend.sh
+
+# 终端 2：启动前端
+./start_frontend.sh
+```
+
+### 5. 访问系统
+
+- 🌐 **前端界面**: http://localhost:8501
+- 📚 **API 文档**: http://localhost:8000/api/docs
+- 🔧 **API ReDoc**: http://localhost:8000/api/redoc
+
+## 📖 使用说明
+
+### 注册与登录
+
+1. 打开前端界面 http://localhost:8501
+2. 在注册页面创建账号
+3. 登录后即可开始使用
+
+### 法律问答
+
+1. 在输入框中输入法律问题
+2. AI 会结合法律知识库和网络搜索给出回答
+3. 回答会附带法律依据和网络来源
+
+### 文档分析
+
+1. 在侧边栏上传法律文档（支持 .txt, .md, .pdf, .doc, .docx）
+2. 选中文档后提问
+3. AI 会结合文档内容回答问题
+
+## 🔧 配置说明
+
+编辑 `config.py` 修改配置：
+
+| 配置项 | 说明 | 默认值 |
+|--------|------|--------|
+| LAW_BOOK_CHUNK_SIZE | 文本分块大小 | 100 |
+| LAW_BOOK_CHUNK_OVERLAP | 分块重叠字符数 | 20 |
+| LAW_VS_SEARCH_K | 返回的法律条文数量 | 2 |
+| WEB_VS_SEARCH_K | 返回的网页数量 | 2 |
+| WEB_PROXY | 网络代理（可选） | http://127.0.0.1:7890 |
+
+## 🔌 API 接口
+
+### 认证接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/auth/register | 用户注册 |
+| POST | /api/auth/login | 用户登录 |
+| GET | /api/auth/me | 获取当前用户 |
+
+### 对话接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/conversations | 获取对话列表 |
+| POST | /api/conversations | 创建新对话 |
+| DELETE | /api/conversations/{id} | 删除对话 |
+| GET | /api/conversations/{id}/messages | 获取对话消息 |
+
+### 聊天接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/chat | 发送消息并获取回答 |
+| POST | /api/chat/stream | 流式发送消息 |
+
+### 文档接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/documents/upload | 上传文档 |
+| GET | /api/documents | 获取文档列表 |
+| DELETE | /api/documents/{id} | 删除文档 |
 
 ## Demo
 
@@ -179,53 +363,18 @@ flowchart LR
     end
 ```
 
-## 初始化运行环境
+## 旧版 Gradio 界面
 
-```
-# 创建.env 文件
-cp .env.example .env
+如果你想使用旧版 Gradio 界面，可以运行：
 
-# 修改.env 中的内容
-vim .env
-
-# 安装venv环境
-python -m venv ~/.venv/law
-. ~/.venv/law
-pip install -r requirements.txt
-```
-
-## 初始化向量数据库
-
-```
-# 加载和切分法律手册，初始化向量数据库
-python manager.py --init
-```
-
-## 运行web ui
-
-```
+```bash
 python manager.py --web
 ```
 
 默认用户名/密码: username / password
-
-<a href="https://sm.ms/image/DbP3TiHZConUFe7" target="_blank"><img src="https://s2.loli.net/2023/10/20/DbP3TiHZConUFe7.png" ></a>
 
 ## 运行对话
 
 ```
 python manager.py --shell
 ```
-
-<a href="https://sm.ms/image/7E4zMpbafCPvNxX" target="_blank"><img src="https://s2.loli.net/2023/10/19/7E4zMpbafCPvNxX.png"></a>
-
-## 配置修改
-
-如果你想修改回答中的法律条数和网页条数，可以修改config.py
-
-- 法律条数: LAW_VS_SEARCH_K
-- 网页条数: WEB_VS_SEARCH_K
-- web ui地址: WEB_HOST
-- web ui端口: WEB_PORT
-- web ui登录用户: WEB_USERNAME
-- web ui登录密码: WEB_PASSWORD

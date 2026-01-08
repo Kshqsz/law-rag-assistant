@@ -87,3 +87,30 @@ multi_query_prompt_template = """您是 AI 语言模型助手。您的任务是�
 MULTI_QUERY_PROMPT_TEMPLATE = PromptTemplate(
     template=multi_query_prompt_template, input_variables=["question"]
 )
+
+# 通俗总结提示词
+summary_prompt_template = """你是一个专业且善于沟通的律师。现在你已经为用户提供了详细的法律依据和网络资料。
+
+请基于以下内容，用通俗易懂的语言为用户总结回答：
+
+法律依据：
+{law_context}
+
+网络资料：
+{web_context}
+
+用户问题：{question}
+
+请注意：
+1. 用简单明了的语言解释，避免过多法律术语
+2. 突出重点和关键结论
+3. 如果涉及具体数字（如罚款、刑期等），请明确指出
+4. 长度控制在200字以内
+5. 语气要亲切、专业
+
+通俗总结："""
+
+SUMMARY_PROMPT = PromptTemplate(
+    template=summary_prompt_template, 
+    input_variables=["law_context", "web_context", "question"]
+)

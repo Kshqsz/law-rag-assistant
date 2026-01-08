@@ -11,8 +11,24 @@ chromadb==0.4.14
 # 搜索
 duckduckgo-search==4.2
 
-# Web 界面
-gradio==3.50.0
+# Web 界面（前端）
+streamlit>=1.28.0
+reportlab>=3.6.0
+
+# 后端框架
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# 用户认证
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# 数据库
+sqlalchemy>=2.0.0
+
+# 邮箱验证
+pydantic[email]>=2.0.0
 
 # 阿里云 DashScope API
 dashscope
@@ -20,3 +36,9 @@ dashscope
 # 其他依赖
 python-dotenv
 openai
+requests
+tqdm
+reportlab
+
+# 旧版 Gradio（可选，保留原有功能）
+gradio==3.50.0

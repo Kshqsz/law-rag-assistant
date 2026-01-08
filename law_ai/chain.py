@@ -235,7 +235,7 @@ def get_check_law_chain(config: Any) -> Chain:
     return check_chain
 
 
-def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler) -> Chain:
+def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enable_web_search: bool = True) -> Chain:
     chain_logger.info("🔧 初始化法律 RAG Chain...")
     
     law_vs = get_vectorstore(config.LAW_VS_COLLECTION_NAME)
@@ -246,12 +246,24 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler) -> Ch
     
     # 使用代理配置
     proxy = getattr(config, 'WEB_PROXY', None)
-    web_retriever = LawWebRetiever(
-        vectorstore=web_vs,
-        search=ProxyDuckDuckGoSearch(proxy=proxy),
-        num_search_results=config.WEB_VS_SEARCH_K
-    )
-    chain_logger.info(f"✓ 检索器初始化完成 (代理: {proxy or '无'})")
+    
+    # 根据 enable_web_search 参数决定是否启用网页检索
+    if enable_web_search:
+        web_retriever = LawWebRetiever(
+            vectorstore=web_vs,
+            search=ProxyDuckDuckGoSearch(proxy=proxy),
+            num_search_results=config.WEB_VS_SEARCH_K
+        )
+        chain_logger.info(f"✓ 检索器初始化完成 (代理: {proxy or '无'}, 网页搜索: 已启用)")
+    else:
+        # 创建一个空的检索器（不进行网页搜索）
+        class EmptyRetriever(BaseRetriever):
+            def _get_relevant_documents(self, query: str, *, run_manager=None):
+                return []
+            async def _aget_relevant_documents(self, query: str, *, run_manager=None):
+                return []
+        web_retriever = EmptyRetriever()
+        chain_logger.info("✓ 检索器初始化完成 (网页搜索: 已禁用，基于用户文档)")
 
     multi_query_retriver = get_multi_query_law_retiever(vs_retriever, get_model())
     chain_logger.info("✓ 多查询检索器初始化完成")
