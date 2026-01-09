@@ -68,12 +68,54 @@ LAW_PROMPT = PromptTemplate(
     template=law_prompt_template, input_variables=["law_context", "web_context", "question"]
 )
 
+# 支持历史对话的提示词模板
+law_prompt_with_history_template = """你是一个专业的律师，请你结合以下内容回答问题。
+
+{law_context}
+
+{web_context}
+
+{history}
+
+当前问题: {question}
+
+注意：
+1. 如果当前问题涉及上下文（如"它"、"这个"、"那个"、"继续"等代词），请参考历史对话理解完整含义
+2. 如果是全新的问题，请直接回答，不要受历史对话影响
+3. 保持回答的专业性和准确性
+"""
+LAW_PROMPT_WITH_HISTORY = PromptTemplate(
+    template=law_prompt_with_history_template, 
+    input_variables=["law_context", "web_context", "history", "question"]
+)
+
 check_law_prompt_template = """你是一个专业律师，请判断下面问题是否和法律相关，相关请回答YES，不想关请回答NO，不允许其它回答，不允许在答案中添加编造成分。
-问题: {question}
+
+{history}
+
+当前问题: {question}
+
+注意：如果问题包含代词（如"它"、"这个"、"那"、"这些"等），请结合历史对话判断是否与法律相关。
 """
 
 CHECK_LAW_PROMPT = PromptTemplate(
-    template=check_law_prompt_template, input_variables=["question"]
+    template=check_law_prompt_template, input_variables=["history", "question"]
+)
+
+# 问题重写提示词（用于包含代词的问题）
+rewrite_question_prompt_template = """你是一个专业的律师助手。用户的问题可能包含代词或指代词（如"它"、"这个"、"那"、"这两种"等），请根据历史对话将问题重写为更明确的版本。
+
+历史对话：
+{history}
+
+当前问题：{question}
+
+请直接输出重写后的问题，不要添加任何解释。如果问题已经足够明确，则原样输出。
+
+重写后的问题："""
+
+REWRITE_QUESTION_PROMPT = PromptTemplate(
+    template=rewrite_question_prompt_template, input_variables=["history", "question"]
 )
 
 hypo_questions_prompt_template = """生成 5 个假设问题的列表，以下文档可用于回答这些问题:\n\n{context}"""

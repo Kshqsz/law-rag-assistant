@@ -45,12 +45,29 @@ class LawQAService:
             app_logger.info("✅ 法律问答服务初始化完成")
             print_separator()
     
-    def is_law_related(self, question: str) -> bool:
-        """检查问题是否与法律相关"""
+    def is_law_related(self, question: str, history: Optional[list] = None) -> bool:
+        """检查问题是否与法律相关
+        
+        Args:
+            question: 用户问题
+            history: 历史对话，格式为 [{"role": "user", "content": "..."}]
+        """
         self._ensure_initialized()
         try:
             print(f"\n🔍 [检查] 判断问题是否与法律相关...")
-            result = self._check_chain.invoke({"question": question})
+            
+            # 如果有历史，格式化为简短文本供校验使用
+            history_for_check = ""
+            if history:
+                history_for_check = "历史对话：\n"
+                for msg in history[-4:]:  # 只用最近2轮对话
+                    role_name = "用户" if msg["role"] == "user" else "律师"
+                    history_for_check += f"{role_name}: {msg['content'][:100]}\n"
+            
+            result = self._check_chain.invoke({
+                "history": history_for_check,
+                "question": question
+            })
             status = "✓ 是法律相关问题" if result else "✗ 不是法律相关问题"
             print(f"   {status}")
             return result
@@ -58,10 +75,47 @@ class LawQAService:
             app_logger.warning(f"法律相关性检查失败: {e}")
             return True  # 如果检查失败，默认认为相关
     
+    def _contains_pronoun(self, question: str) -> bool:
+        """检查问题是否包含代词或指代词"""
+        pronouns = ["它", "这个", "那个", "这", "那", "这些", "那些", "此", "该", 
+                   "这种", "那种", "这两", "那两", "上述", "前面", "以上", "上面提到"]
+        return any(pronoun in question for pronoun in pronouns)
+    
+    def _rewrite_question_with_history(self, question: str, history: list) -> str:
+        """根据历史对话重写问题，使其更明确"""
+        from law_ai.chain import get_check_law_chain
+        from law_ai.prompt import REWRITE_QUESTION_PROMPT
+        from law_ai.utils import get_model
+        
+        try:
+            # 格式化历史对话
+            history_text = ""
+            for msg in history[-6:]:  # 使用最近3轮对话
+                role_name = "用户" if msg["role"] == "user" else "律师"
+                history_text += f"{role_name}: {msg['content'][:200]}\n\n"
+            
+            # 调用LLM重写问题
+            model = get_model()
+            rewrite_chain = REWRITE_QUESTION_PROMPT | model
+            rewritten = rewrite_chain.invoke({
+                "history": history_text,
+                "question": question
+            })
+            
+            # 提取重写后的文本
+            if hasattr(rewritten, 'content'):
+                return rewritten.content.strip()
+            else:
+                return str(rewritten).strip()
+        except Exception as e:
+            app_logger.warning(f"问题重写失败: {e}，使用原问题")
+            return question
+    
     async def ask_question(
         self, 
         question: str,
-        use_document_content: Optional[str] = None
+        use_document_content: Optional[str] = None,
+        history: Optional[list] = None
     ) -> Tuple[str, str, str]:
         """
         异步提问并获取回答
@@ -69,6 +123,7 @@ class LawQAService:
         Args:
             question: 用户问题
             use_document_content: 可选的文档内容（用于基于上传文档的问答）
+            history: 历史对话列表，格式为 [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
             
         Returns:
             Tuple[answer, law_context, web_context]
@@ -85,7 +140,7 @@ class LawQAService:
             print(f"📎 附带文档: {len(use_document_content)} 字符")
         
         # 检查是否与法律相关
-        if not self.is_law_related(question):
+        if not self.is_law_related(question, history):
             print("❌ 问题与法律无关，拒绝回答")
             print_separator("处理结束")
             return (
@@ -103,9 +158,24 @@ class LawQAService:
             print("\n🔄 开始 RAG 检索流程...")
             app_logger.info(f"⏳ 处理问题: {question[:50]}...")
             
+            # 如果有历史对话且问题可能包含代词，先重写问题以提高检索准确度
+            search_question = question
+            if history and self._contains_pronoun(question):
+                print("🔍 检测到代词，正在重写问题以提高检索准确度...")
+                search_question = self._rewrite_question_with_history(question, history)
+                print(f"📝 重写后的问题: {search_question[:100]}{'...' if len(search_question) > 100 else ''}")
+            
+            # 准备输入参数（检索使用重写后的问题，但回答仍使用原问题）
+            chain_input = {"question": question, "search_question": search_question}
+            
+            # 如果有历史对话，添加到输入中
+            if history:
+                print(f"📜 包含历史对话: {len(history)} 条消息")
+                chain_input["history"] = history
+            
             # 不要在 config 中重复传递 callback，因为已经在 get_law_chain 中设置了
             task = asyncio.create_task(
-                chain.ainvoke({"question": question})
+                chain.ainvoke(chain_input)
             )
             
             # 收集流式输出
@@ -147,7 +217,8 @@ class LawQAService:
     async def stream_answer(
         self, 
         question: str,
-        use_document_content: Optional[str] = None
+        use_document_content: Optional[str] = None,
+        history: Optional[list] = None
     ) -> AsyncGenerator[str, None]:
         """
         流式生成回答
@@ -155,6 +226,7 @@ class LawQAService:
         Args:
             question: 用户问题
             use_document_content: 可选的文档内容
+            history: 历史对话列表
             
         Yields:
             生成的文本片段
@@ -162,7 +234,7 @@ class LawQAService:
         self._ensure_initialized()
         
         # 检查是否与法律相关
-        if not self.is_law_related(question):
+        if not self.is_law_related(question, history):
             yield "不好意思，我是法律AI助手，请提问和法律有关的问题。"
             return
         
@@ -175,9 +247,20 @@ class LawQAService:
         try:
             app_logger.info(f"⏳ 流式处理问题: {question[:50]}...")
             
+            # 如果有历史对话且问题可能包含代词，先重写问题以提高检索准确度
+            search_question = question
+            if history and self._contains_pronoun(question):
+                search_question = self._rewrite_question_with_history(question, history)
+                app_logger.info(f"📝 重写后的检索问题: {search_question[:50]}...")
+            
+            # 准备输入参数（检索使用重写后的问题，但回答仍使用原问题）
+            chain_input = {"question": question, "search_question": search_question}
+            if history:
+                chain_input["history"] = history
+            
             # 创建任务 - 不要在 config 中重复传递 callback
             task = asyncio.create_task(
-                chain.ainvoke({"question": question})
+                chain.ainvoke(chain_input)
             )
             
             # 流式输出答案部分

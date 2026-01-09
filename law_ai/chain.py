@@ -104,7 +104,7 @@ from langchain.callbacks.manager import (
 
 from .utils import get_vectorstore, get_model
 from .retriever import LawWebRetiever, ProxyDuckDuckGoSearch, get_multi_query_law_retiever
-from .prompt import LAW_PROMPT, CHECK_LAW_PROMPT, HYPO_QUESTION_PROMPT
+from .prompt import LAW_PROMPT, LAW_PROMPT_WITH_HISTORY, CHECK_LAW_PROMPT, HYPO_QUESTION_PROMPT
 from .combine import combine_law_docs, combine_web_docs
 from .logger import chain_logger
 
@@ -292,10 +292,13 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
         law_context = x["law_context"]
         web_context = x["web_context"]
         question = x["question"]
+        history = x.get("history")  # 获取历史消息（可选）
         
         chain_logger.info("=" * 60)
         chain_logger.info("📝 发送给大模型的 Prompt:")
         chain_logger.info(f"  用户问题: {question}")
+        if history:
+            chain_logger.info(f"  历史对话: {len(history)} 条消息")
         chain_logger.info(f"  法律上下文 ({len(law_context)} 字符):")
         # 只显示前 500 字符
         preview = law_context[:500].replace('\n', '\n    ')
@@ -305,17 +308,42 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
         chain_logger.info("=" * 60)
         chain_logger.info("🤖 调用大模型生成答案...")
         
-        # 格式化 prompt 并调用模型
-        prompt = LAW_PROMPT
+        # 根据是否有历史消息选择不同的 prompt
+        if history:
+            # 格式化历史消息
+            history_text = ""
+            for msg in history:
+                role_name = "用户" if msg["role"] == "user" else "律师"
+                history_text += f"{role_name}: {msg['content']}\n\n"
+            
+            prompt = LAW_PROMPT_WITH_HISTORY
+            prompt_input = {
+                "law_context": law_context,
+                "web_context": web_context,
+                "history": history_text.strip(),
+                "question": question
+            }
+        else:
+            prompt = LAW_PROMPT
+            prompt_input = {
+                "law_context": law_context,
+                "web_context": web_context,
+                "question": question
+            }
+        
         answer_chain = prompt | get_model(callbacks=callbacks) | StrOutputParser()
-        return answer_chain.invoke(x)
+        return answer_chain.invoke(prompt_input)
 
     chain = (
         RunnableMap(
             {
-                "law_docs": itemgetter("question") | multi_query_retriver,
-                'web_docs': itemgetter("question") | web_retriever,
-                "question": lambda x: x["question"]}
+                # 使用 search_question（如果有）或 question 进行检索
+                "law_docs": lambda x: multi_query_retriver.invoke(x.get("search_question", x["question"])),
+                'web_docs': lambda x: web_retriever.invoke(x.get("search_question", x["question"])),
+                "question": lambda x: x["question"],  # 保留原问题用于回答
+                "search_question": lambda x: x.get("search_question", x["question"]),  # 保留检索问题
+                "history": lambda x: x.get("history")  # 传递历史消息
+            }
         )
         | RunnableMap(
             {
@@ -323,7 +351,9 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
                 "web_docs": log_web_docs,
                 "law_context": lambda x: combine_law_docs(x["law_docs"]),
                 "web_context": lambda x: combine_web_docs(x["web_docs"]),
-                "question": lambda x: x["question"]}
+                "question": lambda x: x["question"],
+                "history": lambda x: x.get("history")  # 继续传递历史消息
+            }
         )
         | RunnableMap({
             "law_docs": lambda x: x["law_docs"],
@@ -331,6 +361,7 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
             "law_context": lambda x: x["law_context"],
             "web_context": lambda x: x["web_context"],
             "question": lambda x: x["question"],
+            "history": lambda x: x.get("history"),  # 继续传递历史消息
             "answer": log_prompt_and_call_llm
         })
     )

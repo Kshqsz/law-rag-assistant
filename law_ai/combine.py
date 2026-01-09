@@ -75,13 +75,18 @@ def combine_law_docs(docs: List[Document]) -> str:
                 law_books[metadata["book"]].append(doc)
 
     law_str = ""
+    book_num = 0
     for book, docs in law_books.items():
         if docs:  # 确保有有效文档
-            law_str += f"相关法律：《{book}》\n"
-            law_str += "\n".join([doc.page_content.strip("\n") for doc in docs])
-            law_str += "\n"
+            book_num += 1
+            law_str += f"### 📖 {book_num}. 《{book}》\n\n"
+            for i, doc in enumerate(docs, 1):
+                content = doc.page_content.strip("\n")
+                # 为每个条文添加序号和缩进
+                law_str += f"**[{i}]** {content}\n\n"
+            law_str += "---\n\n"
 
-    return law_str
+    return law_str.rstrip("---\n\n") if law_str else ""
 
 
 def combine_web_docs(docs: List[Document]) -> str:
@@ -92,6 +97,8 @@ def combine_web_docs(docs: List[Document]) -> str:
                      '律师', '公安', '司法', '法制', '宪法']
     
     web_str = ""
+    valid_docs = []
+    
     for doc in docs:
         title = doc.metadata.get('title', '')
         content = doc.page_content.strip("\n")
@@ -105,9 +112,20 @@ def combine_web_docs(docs: List[Document]) -> str:
         is_irrelevant = any(keyword in title or keyword in content[:200] for keyword in irrelevant_keywords)
         
         if is_law_related and not is_irrelevant:
-            web_str += f"相关网页：{title}\n"
-            web_str += f"网页地址：{doc.metadata.get('link', '')}\n"
-            web_str += content + "\n"
-            web_str += "\n"
+            valid_docs.append(doc)
+    
+    # 格式化输出
+    for i, doc in enumerate(valid_docs, 1):
+        title = doc.metadata.get('title', '未知标题')
+        link = doc.metadata.get('link', '')
+        content = doc.page_content.strip("\n")
+        
+        web_str += f"### 🌐 {i}. {title}\n\n"
+        if link:
+            web_str += f"**来源：** [{link}]({link})\n\n"
+        web_str += f"{content}\n\n"
+        
+        if i < len(valid_docs):  # 不是最后一个才加分隔线
+            web_str += "---\n\n"
 
     return web_str

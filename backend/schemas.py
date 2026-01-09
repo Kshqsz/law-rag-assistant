@@ -202,5 +202,6 @@ class AdminStatsResponse(BaseModel):
     total_conversations: int
     total_messages: int
     user_growth: List[UserGrowthItem]
+    message_growth: List[UserGrowthItem]  # 复用UserGrowthItem结构
     top_questions: List[TopQuestionItem]
     category_stats: List[CategoryStatItem]

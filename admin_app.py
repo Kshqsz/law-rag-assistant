@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from frontend.api_client import api_client
 import pandas as pd
+from streamlit_echarts import st_echarts
 
 # 页面配置
 st.set_page_config(
@@ -174,8 +175,118 @@ def render_admin_dashboard():
     user_growth = result.get("user_growth", [])
     if user_growth:
         df = pd.DataFrame(user_growth)
-        df['date'] = pd.to_datetime(df['date'])
-        st.line_chart(df.set_index('date')['count'], use_container_width=True)
+        df['date'] = pd.to_datetime(df['date']).dt.strftime('%m-%d')
+        
+        # ECharts 折线图配置
+        line_option = {
+            "backgroundColor": "#212121",
+            "tooltip": {
+                "trigger": "axis",
+                "backgroundColor": "rgba(50,50,50,0.9)",
+                "borderColor": "#10a37f",
+                "borderWidth": 1,
+                "textStyle": {"color": "#ececec"}
+            },
+            "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "top": "10%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "type": "category",
+                "data": df['date'].tolist(),
+                "axisLine": {"lineStyle": {"color": "#424242"}},
+                "axisLabel": {"color": "#8e8e8e", "fontSize": 11}
+            },
+            "yAxis": {
+                "type": "value",
+                "axisLine": {"lineStyle": {"color": "#424242"}},
+                "axisLabel": {"color": "#8e8e8e"},
+                "splitLine": {"lineStyle": {"color": "#2f2f2f", "type": "dashed"}}
+            },
+            "series": [{
+                "name": "用户数",
+                "type": "line",
+                "smooth": True,
+                "data": df['count'].tolist(),
+                "lineStyle": {"color": "#10a37f", "width": 3},
+                "itemStyle": {"color": "#10a37f"},
+                "areaStyle": {
+                    "color": {
+                        "type": "linear",
+                        "x": 0, "y": 0, "x2": 0, "y2": 1,
+                        "colorStops": [
+                            {"offset": 0, "color": "rgba(16,163,127,0.3)"},
+                            {"offset": 1, "color": "rgba(16,163,127,0.05)"}
+                        ]
+                    }
+                }
+            }]
+        }
+        st_echarts(options=line_option, height="400px")
+    else:
+        st.info("暂无数据")
+    
+    st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
+    
+    # ========== 问题数量增长趋势图 ==========
+    st.markdown("<h3 style='color: #ececec; margin-bottom: 16px;'>💬 问题数量增长趋势（近30天）</h3>", unsafe_allow_html=True)
+    message_growth = result.get("message_growth", [])
+    if message_growth:
+        df_msg = pd.DataFrame(message_growth)
+        df_msg['date'] = pd.to_datetime(df_msg['date']).dt.strftime('%m-%d')
+        
+        # ECharts 折线图配置（使用不同颜色）
+        line_option_msg = {
+            "backgroundColor": "#212121",
+            "tooltip": {
+                "trigger": "axis",
+                "backgroundColor": "rgba(50,50,50,0.9)",
+                "borderColor": "#1e90ff",
+                "borderWidth": 1,
+                "textStyle": {"color": "#ececec"}
+            },
+            "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "top": "10%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "type": "category",
+                "data": df_msg['date'].tolist(),
+                "axisLine": {"lineStyle": {"color": "#424242"}},
+                "axisLabel": {"color": "#8e8e8e", "fontSize": 11}
+            },
+            "yAxis": {
+                "type": "value",
+                "axisLine": {"lineStyle": {"color": "#424242"}},
+                "axisLabel": {"color": "#8e8e8e"},
+                "splitLine": {"lineStyle": {"color": "#2f2f2f", "type": "dashed"}}
+            },
+            "series": [{
+                "name": "问题数",
+                "type": "line",
+                "smooth": True,
+                "data": df_msg['count'].tolist(),
+                "lineStyle": {"color": "#1e90ff", "width": 3},
+                "itemStyle": {"color": "#1e90ff"},
+                "areaStyle": {
+                    "color": {
+                        "type": "linear",
+                        "x": 0, "y": 0, "x2": 0, "y2": 1,
+                        "colorStops": [
+                            {"offset": 0, "color": "rgba(30,144,255,0.3)"},
+                            {"offset": 1, "color": "rgba(30,144,255,0.05)"}
+                        ]
+                    }
+                }
+            }]
+        }
+        st_echarts(options=line_option_msg, height="400px")
     else:
         st.info("暂无数据")
     
@@ -190,17 +301,65 @@ def render_admin_dashboard():
         top_questions = result.get("top_questions", [])
         
         if top_questions:
-            for i, item in enumerate(top_questions, 1):
-                st.markdown(f"""
-                <div style="background: #2a2a2a; border-radius: 8px; padding: 12px; margin-bottom: 8px; 
-                            border: 1px solid #3f3f3f;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #8e8e8e; font-weight: 600; margin-right: 12px;">{i}</span>
-                        <span style="color: #ececec; flex: 1;">{item['question'][:50]}{'...' if len(item['question']) > 50 else ''}</span>
-                        <span style="color: #10a37f; font-weight: 600; margin-left: 12px;">{item['count']} 次</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+            # ECharts 横向柱状图配置
+            questions = [item['question'][:30] + ('...' if len(item['question']) > 30 else '') for item in top_questions]
+            counts = [item['count'] for item in top_questions]
+            
+            bar_option = {
+                "backgroundColor": "#212121",
+                "tooltip": {
+                    "trigger": "axis",
+                    "axisPointer": {"type": "shadow"},
+                    "backgroundColor": "rgba(50,50,50,0.9)",
+                    "borderColor": "#10a37f",
+                    "borderWidth": 1,
+                    "textStyle": {"color": "#ececec"}
+                },
+                "grid": {
+                    "left": "3%",
+                    "right": "4%",
+                    "bottom": "3%",
+                    "top": "3%",
+                    "containLabel": True
+                },
+                "xAxis": {
+                    "type": "value",
+                    "axisLine": {"lineStyle": {"color": "#424242"}},
+                    "axisLabel": {"color": "#8e8e8e"},
+                    "splitLine": {"lineStyle": {"color": "#2f2f2f", "type": "dashed"}}
+                },
+                "yAxis": {
+                    "type": "category",
+                    "data": questions[::-1],  # 反转顺序，让最热门的在顶部
+                    "axisLine": {"lineStyle": {"color": "#424242"}},
+                    "axisLabel": {"color": "#ececec", "fontSize": 11}
+                },
+                "series": [{
+                    "name": "提问次数",
+                    "type": "bar",
+                    "data": counts[::-1],
+                    "itemStyle": {
+                        "color": {
+                            "type": "linear",
+                            "x": 0, "y": 0, "x2": 1, "y2": 0,
+                            "colorStops": [
+                                {"offset": 0, "color": "#10a37f"},
+                                {"offset": 1, "color": "#0e8c6d"}
+                            ]
+                        },
+                        "borderRadius": [0, 5, 5, 0]
+                    },
+                    "label": {
+                        "show": True,
+                        "position": "right",
+                        "formatter": "{c} 次",
+                        "color": "#ececec",
+                        "fontSize": 11
+                    },
+                    "barMaxWidth": 30
+                }]
+            }
+            st_echarts(options=bar_option, height="420px")
         else:
             st.info("暂无数据")
     
@@ -210,9 +369,52 @@ def render_admin_dashboard():
         category_stats = result.get("category_stats", [])
         
         if category_stats:
-            # 柱状图
-            df = pd.DataFrame(category_stats)
-            st.bar_chart(df.set_index('category')['count'], use_container_width=True)
+            # ECharts 饼图配置
+            pie_data = [{"value": item["count"], "name": item["category"]} for item in category_stats]
+            
+            pie_option = {
+                "backgroundColor": "#212121",
+                "tooltip": {
+                    "trigger": "item",
+                    "formatter": "{b}: {c} ({d}%)",
+                    "backgroundColor": "rgba(50,50,50,0.9)",
+                    "borderColor": "#10a37f",
+                    "borderWidth": 1,
+                    "textStyle": {"color": "#ececec"}
+                },
+                "legend": {
+                    "orient": "vertical",
+                    "right": "10",
+                    "top": "center",
+                    "textStyle": {"color": "#ececec", "fontSize": 12}
+                },
+                "series": [{
+                    "name": "问题分类",
+                    "type": "pie",
+                    "radius": ["40%", "70%"],
+                    "center": ["35%", "50%"],
+                    "avoidLabelOverlap": False,
+                    "itemStyle": {
+                        "borderRadius": 10,
+                        "borderColor": "#212121",
+                        "borderWidth": 2
+                    },
+                    "label": {
+                        "show": True,
+                        "position": "outside",
+                        "formatter": "{b}\n{d}%",
+                        "color": "#ececec",
+                        "fontSize": 11
+                    },
+                    "emphasis": {
+                        "label": {"show": True, "fontSize": 14, "fontWeight": "bold"}
+                    },
+                    "labelLine": {"show": True, "lineStyle": {"color": "#424242"}},
+                    "data": pie_data,
+                    "color": ["#10a37f", "#1e90ff", "#ff6b6b", "#ffd93d", "#a29bfe", "#fd79a8"]
+                }]
+            }
+            st_echarts(options=pie_option, height="380px")
             
             # 详细数据
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)

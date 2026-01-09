@@ -86,10 +86,24 @@ async def chat(
         if doc:
             document_content = await read_document_content(doc.file_path)
     
+    # 获取历史对话（最近5轮，即10条消息）
+    history_messages = db.query(Message).filter(
+        Message.conversation_id == conversation.id
+    ).order_by(desc(Message.created_at)).limit(10).all()
+    
+    # 反转顺序（从旧到新）并格式化
+    history = []
+    for msg in reversed(history_messages):
+        history.append({
+            "role": msg.role,
+            "content": msg.content
+        })
+    
     # 调用法律问答服务
     answer, law_context, web_context = await law_qa_service.ask_question(
         request.message,
-        use_document_content=document_content
+        use_document_content=document_content,
+        history=history if history else None
     )
     
     # 保存AI回答
@@ -172,6 +186,15 @@ async def chat_stream(
         if doc:
             document_content = await read_document_content(doc.file_path)
     
+    # 获取历史对话（最近5轮）
+    history_messages = db.query(Message).filter(
+        Message.conversation_id == conversation.id
+    ).order_by(desc(Message.created_at)).limit(10).all()
+    
+    history = []
+    for msg in reversed(history_messages):
+        history.append({"role": msg.role, "content": msg.content})
+    
     conversation_id = conversation.id
     
     async def generate():
@@ -184,7 +207,8 @@ async def chat_stream(
             # 流式生成回答 - 使用 law_service 的流式方法
             async for chunk in law_qa_service.stream_answer(
                 request.message,
-                use_document_content=document_content
+                use_document_content=document_content,
+                history=history if history else None
             ):
                 if isinstance(chunk, dict):
                     # 如果是字典，包含最终的上下文信息
