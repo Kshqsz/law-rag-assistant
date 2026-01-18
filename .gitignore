@@ -197,3 +197,5 @@ dist-ssr/
 Thumbs.db
 
 uploads
+# Archive folder (deprecated files)
+_archive/

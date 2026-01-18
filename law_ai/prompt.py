@@ -64,10 +64,12 @@ law_prompt_template = """你是一个专业的律师，请你结合以下内容�
 
 问题: {question}
 
-回答要求：
-1. 使用标准Markdown格式（如 **加粗**、*斜体*、列表等）
-2. 禁止使用HTML标签（如 <br>、<p>、<div> 等）
-3. 换行请直接使用两个换行符
+回答格式要求（必须严格遵守）：
+1. 使用标准 Markdown 格式
+2. **绝对禁止**使用任何 HTML 标签，包括但不限于：<br>、<p>、<div>、<table>、<tr>、<td> 等
+3. 表格请使用 Markdown 表格语法：| 列名 | 列名 | 和 --- 分隔线
+4. 列表项内的换行使用分号或编号，不要使用 <br>
+5. 换行请直接使用两个换行符
 """
 LAW_PROMPT = PromptTemplate(
     template=law_prompt_template, input_variables=["law_context", "web_context", "question"]
@@ -89,10 +91,12 @@ law_prompt_with_history_template = """你是一个专业的律师，请你结合
 2. 如果是全新的问题，请直接回答，不要受历史对话影响
 3. 保持回答的专业性和准确性
 
-回答要求：
-1. 使用标准Markdown格式（如 **加粗**、*斜体*、列表等）
-2. 禁止使用HTML标签（如 <br>、<p>、<div> 等）
-3. 换行请直接使用两个换行符
+回答格式要求（必须严格遵守）：
+1. 使用标准 Markdown 格式
+2. **绝对禁止**使用任何 HTML 标签，包括但不限于：<br>、<p>、<div>、<table>、<tr>、<td> 等
+3. 表格请使用 Markdown 表格语法：| 列名 | 列名 | 和 --- 分隔线
+4. 列表项内的换行使用分号或编号，不要使用 <br>
+5. 换行请直接使用两个换行符
 """
 LAW_PROMPT_WITH_HISTORY = PromptTemplate(
     template=law_prompt_with_history_template, 

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ElMessage } from 'element-plus'
 import api from '@/api'
 
 export const useChatStore = defineStore('chat', {
@@ -148,6 +149,32 @@ export const useChatStore = defineStore('chat', {
     newConversation() {
       this.currentConversationId = null
       this.messages = []
+    },
+    
+    async loadConversationMessages(conversationId) {
+      try {
+        console.log('[ChatStore] Loading messages for conversation:', conversationId)
+        const res = await api.getMessages(conversationId)
+        
+        if (res.messages && Array.isArray(res.messages)) {
+          // 将数据库中的消息转换为前端格式
+          this.messages = res.messages.map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            law_context: msg.law_context || '',
+            web_results: msg.web_context || '', // 注意：后端返回 web_context，前端使用 web_results
+            timestamp: msg.created_at,
+            isStreaming: false
+          }))
+          console.log('[ChatStore] Loaded', this.messages.length, 'messages')
+          // 输出有 web_results 的消息数量
+          const withWebResults = this.messages.filter(m => m.web_results)
+          console.log('[ChatStore] Messages with web_results:', withWebResults.length)
+        }
+      } catch (error) {
+        console.error('[ChatStore] Failed to load messages:', error)
+        ElMessage.error('加载消息失败')
+      }
     }
   }
 })

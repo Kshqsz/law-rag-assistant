@@ -123,12 +123,14 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useChatStore } from '@/stores/chat'
 import { ElMessage } from 'element-plus'
 import MarkdownIt from 'markdown-it'
 import api from '@/api'
 
+const route = useRoute()
 const chatStore = useChatStore()
 const md = new MarkdownIt()
 
@@ -160,6 +162,22 @@ const scrollToBottom = () => {
 
 watch(() => chatStore.messages.length, scrollToBottom)
 watch(() => chatStore.messages[chatStore.messages.length - 1]?.content, scrollToBottom)
+
+// 监听对话 ID 变化，加载历史消息
+watch(() => chatStore.currentConversationId, async (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    console.log('对话 ID 变化，加载消息:', newId)
+    await chatStore.loadConversationMessages(newId)
+  }
+}, { immediate: true })
+
+onMounted(async () => {
+  // 如果 URL 中有对话 ID，加载该对话
+  const conversationId = route.params.id
+  if (conversationId && conversationId !== chatStore.currentConversationId) {
+    chatStore.currentConversationId = parseInt(conversationId)
+  }
+})
 
 const sendMessage = async () => {
   const message = inputMessage.value.trim()
