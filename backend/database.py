@@ -95,7 +95,7 @@ class Favorite(Base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
+    message_id = Column(Integer, ForeignKey("messages.id"), nullable=True)  # 可选关联消息
     question = Column(Text, nullable=False)  # 问题内容
     answer = Column(Text, nullable=False)  # 回答内容
     created_at = Column(DateTime, default=datetime.utcnow)

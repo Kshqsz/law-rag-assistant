@@ -19,18 +19,19 @@ async def add_favorite(
     current_user: User = Depends(get_current_user)
 ):
     """添加消息到收藏夹"""
-    # 检查消息是否存在
-    message = db.query(Message).filter(Message.id == data.message_id).first()
-    if not message:
-        raise HTTPException(status_code=404, detail="消息不存在")
-    
-    # 检查是否已收藏
-    existing = db.query(Favorite).filter(
-        Favorite.user_id == current_user.id,
-        Favorite.message_id == data.message_id
-    ).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="已收藏过此消息")
+    # 如果提供了 message_id，检查消息是否存在并防止重复收藏
+    if data.message_id:
+        message = db.query(Message).filter(Message.id == data.message_id).first()
+        if not message:
+            raise HTTPException(status_code=404, detail="消息不存在")
+        
+        # 检查是否已收藏
+        existing = db.query(Favorite).filter(
+            Favorite.user_id == current_user.id,
+            Favorite.message_id == data.message_id
+        ).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="已收藏过此消息")
     
     favorite = Favorite(
         user_id=current_user.id,

@@ -1,0 +1,159 @@
+// 全局变量
+:root {
+  --bg-primary: #212121;
+  --bg-secondary: #171717;
+  --bg-tertiary: #2a2a2a;
+  --bg-hover: #3a3a3a;
+  --border-color: #3f3f3f;
+  --text-primary: #ececec;
+  --text-secondary: #8e8e8e;
+  --text-muted: #6e6e6e;
+  --accent-color: #10a37f;
+  --accent-hover: #0e8c6d;
+  --danger-color: #ff6b6b;
+  --warning-color: #ffa726;
+  --success-color: #66bb6a;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// 重置样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 
+               'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+// 滚动条
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+  
+  &:hover {
+    background: var(--text-muted);
+  }
+}
+
+// Element Plus 暗色主题覆盖
+.dark {
+  --el-bg-color: var(--bg-primary);
+  --el-bg-color-overlay: var(--bg-tertiary);
+  --el-text-color-primary: var(--text-primary);
+  --el-text-color-regular: var(--text-secondary);
+  --el-border-color: var(--border-color);
+  --el-fill-color-blank: var(--bg-tertiary);
+  --el-color-primary: var(--accent-color);
+  
+  .el-input__wrapper {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    box-shadow: none !important;
+    
+    &:hover, &.is-focus {
+      border-color: var(--accent-color);
+    }
+  }
+  
+  .el-button--primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    
+    &:hover, &:focus {
+      background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+  }
+  
+  .el-button--default {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    
+    &:hover, &:focus {
+      background-color: var(--bg-hover);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+  }
+  
+  .el-dialog {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+  }
+  
+  .el-message-box {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+  }
+  
+  .el-tabs__item {
+    color: var(--text-secondary);
+    
+    &.is-active {
+      color: var(--accent-color);
+    }
+  }
+  
+  .el-menu {
+    background-color: transparent;
+    border: none;
+  }
+}
+
+// 动画
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+// 通用类
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

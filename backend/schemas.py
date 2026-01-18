@@ -153,15 +153,17 @@ class ErrorResponse(BaseModel):
 
 class FavoriteCreate(BaseModel):
     """创建收藏请求"""
-    message_id: int
+    message_id: Optional[int] = None
     question: str
     answer: str
+    law_context: Optional[str] = None
+    web_results: Optional[str] = None
 
 
 class FavoriteResponse(BaseModel):
     """收藏响应"""
     id: int
-    message_id: int
+    message_id: Optional[int] = None
     question: str
     answer: str
     created_at: datetime

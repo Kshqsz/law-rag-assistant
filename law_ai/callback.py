@@ -23,8 +23,23 @@ LLM 异步流式回调处理模块
     # LLM 生成的结果会通过 callback_handler 逐步输出
     result = llm.invoke("什么是民法典？")
 """
+from typing import Any, Dict, List, Optional
 from langchain.callbacks import AsyncIteratorCallbackHandler
 
 
 class OutCallbackHandler(AsyncIteratorCallbackHandler):
-    pass
+    """扩展 AsyncIteratorCallbackHandler，实现缺失的回调方法"""
+    
+    async def on_chat_model_start(
+        self,
+        serialized: Dict[str, Any],
+        messages: List[List[Any]],
+        *,
+        run_id: Any,
+        parent_run_id: Optional[Any] = None,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> None:
+        """聊天模型开始时的回调（空实现以避免 NotImplementedError）"""
+        pass

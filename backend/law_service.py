@@ -233,12 +233,13 @@ class LawQAService:
         """
         self._ensure_initialized()
         
+        has_document = use_document_content is not None
+        
         # 检查是否与法律相关
         if not self.is_law_related(question, history):
             yield "不好意思，我是法律AI助手，请提问和法律有关的问题。"
             return
         
-        has_document = use_document_content is not None
         out_callback = OutCallbackHandler()
         # 如果有上传文档，则禁用网页搜索；否则启用网页搜索
         enable_web = not has_document
