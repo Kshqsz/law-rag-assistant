@@ -166,69 +166,14 @@ def render_login_page():
         st.toast("✅ 已退出登录", icon="👋")
         del st.session_state.show_logout_success
     
-    # 居中样式
+    # tabs居中样式
     st.markdown("""
     <style>
-    .login-container {
-        max-width: 500px;
-        margin: 0 auto;
-        padding-top: 60px;
-    }
-    .login-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-    .login-logo {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-    }
-    .login-title {
-        color: #ececec;
-        font-size: 2rem;
-        font-weight: 600;
-    }
-    .login-subtitle {
-        color: #8e8e8e;
-        font-size: 1rem;
-    }
-    /* 输入框全宽显示 */
-    .stTextInput {
-        width: 100% !important;
-    }
-    .stTextInput > div {
-        width: 100% !important;
-    }
-    .stTextInput input {
-        width: 100% !important;
-    }
-    /* 移除tabs内部的额外padding */
-    [data-testid="stTabs"] [data-testid="stVerticalBlock"] {
-        padding: 0 !important;
-    }
-    /* 强制按钮居中 - 更强的选择器 */
-    div[data-testid="stForm"] button[kind="primary"] {
-        display: block !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-    /* 确保按钮容器也居中 */
-    div[data-testid="stForm"] div[data-testid="column"] {
-        display: flex !important;
-        justify-content: center !important;
-    }
-    /* 让 tabs 居中显示 */
-    [data-testid="stTabs"] {
-        display: flex !important;
-        justify-content: center !important;
-    }
-    [data-testid="stTabs"] > div {
-        max-width: 100% !important;
-        justify-content: center !important;
-    }
+    /* 让tabs居中显示 */
     [data-testid="stTabs"] [role="tablist"] {
         justify-content: center !important;
     }
-    /* 增大 tab 按钮的字体和尺寸 */
+    /* 增大tabs按钮尺寸 */
     [data-testid="stTabs"] button[role="tab"] {
         font-size: 1.2rem !important;
         padding: 12px 32px !important;
@@ -237,17 +182,19 @@ def render_login_page():
     </style>
     """, unsafe_allow_html=True)
     
+    # 使用与管理员界面一致的布局
     col1, col2, col3 = st.columns([1, 1, 1])
     
     with col2:
         st.markdown("""
-        <div class="login-header">
-            <div class="login-logo">⚖️</div>
-            <h1 class="login-title">法律AI助手</h1>
-            <p class="login-subtitle">基于 RAG 技术的智能法律问答系统</p>
+        <div style="text-align: center; padding-top: 100px; margin-bottom: 60px;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">⚖️</div>
+            <h1 style="color: #ececec; font-size: 2.2rem; font-weight: 600;">法律AI助手</h1>
+            <p style="color: #8e8e8e; font-size: 1rem; margin-top: 8px;">基于 RAG 技术的智能法律问答系统</p>
         </div>
         """, unsafe_allow_html=True)
         
+        # 使用tabs来切换登录和注册
         tab1, tab2 = st.tabs(["登录", "注册"])
         
         with tab1:
@@ -421,76 +368,66 @@ def render_sidebar():
             padding-top: 20px;
             border-top: 1px solid #2f2f2f;
         }
-        /* 隐藏popover的箭头 */
-        [data-testid="stPopover"] > div > div:first-child::before,
-        [data-testid="stPopover"] > div > div:first-child::after {
-            display: none !important;
-        }
-        /* 调整popover位置，使其更靠右 */
-        [data-testid="stPopover"] {
-            position: relative !important;
-        }
-        [data-testid="stPopover"] > div {
-            left: auto !important;
-            right: 0 !important;
-        }
-        /* popover内容样式优化 */
-        [data-testid="stPopover"] [data-testid="stVerticalBlock"] {
-            padding: 4px !important;
-            gap: 4px !important;
-        }
         </style>
         """, unsafe_allow_html=True)
         
         # 填充空间
         st.markdown("<div style='flex-grow: 1; min-height: 50px;'></div>", unsafe_allow_html=True)
         
-        # 用户区域
+        # 用户区域（包含底部空间）
         st.markdown("<div class='user-area'></div>", unsafe_allow_html=True)
         
-        # 初始化菜单状态
-        if "user_menu_open" not in st.session_state:
-            st.session_state.user_menu_open = False
-        if "logout_confirm" not in st.session_state:
-            st.session_state.logout_confirm = False
-        if "delete_confirm_conv_id" not in st.session_state:
-            st.session_state.delete_confirm_conv_id = None
+        # 用户信息和退出登录按钮
+        username = st.session_state.user.get('username', '用户')
         
-        # 展开的菜单（在用户按钮上方）
-        if st.session_state.user_menu_open:
-            # 检查是否显示退出确认
-            if st.session_state.get("logout_confirm", False):
-                st.markdown("""
-                <div style="background: #2a2a2a; border: 1px solid #ff4444; border-radius: 8px; padding: 12px; margin-bottom: 8px;">
-                    <p style="color: #ff6666; font-size: 0.9rem; margin: 0;">⚠️ 确认退出登录？</p>
-                </div>
-                """, unsafe_allow_html=True)
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("✓ 确认", key="confirm_logout", use_container_width=True, type="primary"):
-                        st.session_state.show_logout_success = True
-                        logout()
-                        st.session_state.user_menu_open = False
-                        st.session_state.logout_confirm = False
-                        st.rerun()
-                with col2:
-                    if st.button("✕ 取消", key="cancel_logout", use_container_width=True):
-                        st.session_state.logout_confirm = False
-                        st.rerun()
-            else:
-                st.markdown("""
-                <div style="background: #2a2a2a; border-radius: 8px; padding: 4px; margin-bottom: 8px;">
-                </div>
-                """, unsafe_allow_html=True)
-                if st.button("↪️ 退出登录", key="logout_btn", use_container_width=True):
-                    st.session_state.logout_confirm = True
+        # 退出确认对话框
+        @st.dialog("确认退出", width="small")
+        def show_logout_confirm():
+            st.markdown("""
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 3.5rem; margin-bottom: 16px;">👋</div>
+                <p style="font-size: 1.2rem; color: #ececec; margin-bottom: 8px; font-weight: 500;">确认退出登录？</p>
+                <p style="color: #999; font-size: 0.95rem; margin-bottom: 24px;">您的对话记录将被保存</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✓ 确认退出", key="confirm_logout_dialog", use_container_width=True, type="primary"):
+                    st.session_state.show_logout_success = True
+                    logout()
+                    st.rerun()
+            with col2:
+                if st.button("✕ 取消", key="cancel_logout_dialog", use_container_width=True):
                     st.rerun()
         
-        # 用户按钮
-        username = st.session_state.user.get('username', '用户')
-        if st.button(f"👤 {username}", key="user_btn", use_container_width=True):
-            st.session_state.user_menu_open = not st.session_state.user_menu_open
-            st.rerun()
+        # 用户信息和退出登录按钮
+        st.markdown("""
+        <style>
+        /* 让退出登录按钮与用户信息框对齐 */
+        div[data-testid="column"]:has(button[key="logout_btn"]) button {
+            height: 46px !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        cols = st.columns([4, 2])
+        with cols[0]:
+            st.markdown(f"""
+            <div style="background: #2a2a2a; border-radius: 8px; padding: 12px 16px; 
+                        display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.2rem;">👤</span>
+                <span style="font-size: 0.95rem; color: #ececec; font-weight: 500;">{username}</span>
+            </div>
+            """, unsafe_allow_html=True)
+        with cols[1]:
+            # 直接显示退出登录按钮
+            if st.button("↪️", key="logout_btn", use_container_width=True, help="退出登录"):
+                show_logout_confirm()
 
 
 def _load_messages(conversation_id: int):
