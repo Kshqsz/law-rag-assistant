@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { useDark } from '@vueuse/core'
+import { ref } from 'vue'
 
 // 默认使用暗色主题
 const isDark = ref(true)

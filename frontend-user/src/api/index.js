@@ -123,21 +123,30 @@ export default {
   // 流式聊天
   chatStream: async function* (question, conversationId = null, documentId = null) {
     const token = localStorage.getItem('admin_token') || localStorage.getItem('token')
+    
+    const requestBody = {
+      message: question,
+      conversation_id: conversationId,
+      use_document: documentId
+    }
+    
+    console.log('[API] chatStream request:', requestBody)
+    
     const response = await fetch('/api/chat/stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({
-        message: question,
-        conversation_id: conversationId,
-        use_document: documentId
-      })
+      body: JSON.stringify(requestBody)
     })
     
+    console.log('[API] chatStream response status:', response.status)
+    
     if (!response.ok) {
-      throw new Error('Stream request failed')
+      const errorText = await response.text()
+      console.error('[API] chatStream error:', errorText)
+      throw new Error('Stream request failed: ' + errorText)
     }
     
     const reader = response.body.getReader()
@@ -155,9 +164,10 @@ export default {
           const data = line.slice(6)
           try {
             const parsed = JSON.parse(data)
+            console.log('[API] chatStream chunk:', parsed)
             yield parsed
           } catch (e) {
-            console.error('解析SSE数据失败:', e)
+            console.error('解析SSE数据失败:', e, 'data:', data)
           }
         }
       }

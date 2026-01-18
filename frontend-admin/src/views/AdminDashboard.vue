@@ -73,6 +73,17 @@
           </div>
         </section>
         
+        <!-- 问题增长趋势 -->
+        <section class="section">
+          <h2 class="section-title">
+            <el-icon><ChatDotRound /></el-icon>
+            问题增长趋势（近30天）
+          </h2>
+          <div class="chart-container">
+            <div ref="messageGrowthChart" class="chart"></div>
+          </div>
+        </section>
+        
         <!-- 统计图表 -->
         <div class="charts-row">
           <!-- 高频问题 -->
@@ -123,6 +134,7 @@ const loading = ref(true)
 const stats = ref(null)
 
 const userGrowthChart = ref(null)
+const messageGrowthChart = ref(null)
 const topQuestionsChart = ref(null)
 const categoryChart = ref(null)
 
@@ -135,35 +147,49 @@ const todayGrowth = computed(() => {
 })
 
 onMounted(async () => {
+  console.log('AdminDashboard mounted')
+  console.log('Admin store state:', adminStore.$state)
   await fetchData()
 })
 
 const fetchData = async () => {
   loading.value = true
+  console.log('Fetching stats...')
+  console.log('Token:', adminStore.token)
+  
   const result = await adminStore.fetchStats()
+  console.log('Fetch result:', result)
+  
   loading.value = false
   
   if (result.success) {
     stats.value = result.data
     console.log('Stats loaded:', result.data)
+    console.log('Stats ref:', stats)
     // 等待 DOM 完全渲染
     await nextTick()
     // 再等待一帧确保 DOM 已挂载
     setTimeout(() => {
-      initCharts()
+      console.log('Stats after timeout:', stats.value)
+      if (stats.value) {
+        initCharts()
+      }
     }, 100)
   } else {
     console.error('Failed to fetch stats:', result.error)
+    ElMessage.error(result.error || '获取统计数据失败')
   }
 }
 
 const initCharts = () => {
   console.log('Initializing charts...')
   console.log('userGrowthChart ref:', userGrowthChart.value)
+  console.log('messageGrowthChart ref:', messageGrowthChart.value)
   console.log('topQuestionsChart ref:', topQuestionsChart.value)
   console.log('categoryChart ref:', categoryChart.value)
   
   initUserGrowthChart()
+  initMessageGrowthChart()
   initTopQuestionsChart()
   initCategoryChart()
 }
@@ -219,6 +245,71 @@ const initUserGrowthChart = () => {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: 'rgba(16,163,127,0.3)' },
           { offset: 1, color: 'rgba(16,163,127,0.05)' }
+        ])
+      }
+    }],
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#2a2a2a',
+      borderColor: '#3f3f3f',
+      textStyle: { color: '#ececec' }
+    }
+  })
+  
+  window.addEventListener('resize', () => chart.resize())
+}
+
+const initMessageGrowthChart = () => {
+  if (!messageGrowthChart.value) return
+  
+  const chart = echarts.init(messageGrowthChart.value)
+  const data = stats.value?.message_growth || []
+  
+  // 如果没有数据，显示空状态
+  if (data.length === 0) {
+    chart.setOption({
+      backgroundColor: 'transparent',
+      title: {
+        text: '暂无数据',
+        left: 'center',
+        top: 'center',
+        textStyle: { color: '#8e8e8e', fontSize: 14 }
+      }
+    })
+    return
+  }
+  
+  chart.setOption({
+    backgroundColor: 'transparent',
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.date.slice(5)),
+      axisLine: { lineStyle: { color: '#3f3f3f' } },
+      axisLabel: { color: '#8e8e8e', fontSize: 11 }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#3f3f3f' } },
+      axisLabel: { color: '#8e8e8e' },
+      splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
+    },
+    series: [{
+      type: 'line',
+      smooth: true,
+      data: data.map(d => d.count),
+      lineStyle: { color: '#3b82f6', width: 3 },
+      itemStyle: { color: '#3b82f6' },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(59,130,246,0.3)' },
+          { offset: 1, color: 'rgba(59,130,246,0.05)' }
         ])
       }
     }],
@@ -382,7 +473,7 @@ const handleLogout = async () => {
     
     adminStore.logout()
     ElMessage.success('已退出登录')
-    router.push('/admin/login')
+    router.push('/login')
   } catch {
     // 用户取消
   }

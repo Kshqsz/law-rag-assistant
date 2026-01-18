@@ -78,13 +78,21 @@ async def chat(
     # 如果使用文档，读取文档内容
     document_content = None
     if request.use_document:
+        print(f"📄 用户请求使用文档 ID: {request.use_document}")
         doc = db.query(Document).filter(
             Document.id == request.use_document,
             Document.user_id == current_user.id
         ).first()
         
         if doc:
+            print(f"✅ 找到文档: {doc.original_filename}, 路径: {doc.file_path}")
             document_content = await read_document_content(doc.file_path)
+            if document_content:
+                print(f"✅ 文档内容读取成功: {len(document_content)} 字符")
+            else:
+                print(f"❌ 文档内容读取失败")
+        else:
+            print(f"❌ 未找到文档 ID: {request.use_document}")
     
     # 获取历史对话（最近5轮，即10条消息）
     history_messages = db.query(Message).filter(
@@ -178,13 +186,21 @@ async def chat_stream(
     # 如果使用文档，读取文档内容
     document_content = None
     if request.use_document:
+        print(f"📄 [流式] 用户请求使用文档 ID: {request.use_document}")
         doc = db.query(Document).filter(
             Document.id == request.use_document,
             Document.user_id == current_user.id
         ).first()
         
         if doc:
+            print(f"✅ [流式] 找到文档: {doc.original_filename}, 路径: {doc.file_path}")
             document_content = await read_document_content(doc.file_path)
+            if document_content:
+                print(f"✅ [流式] 文档内容读取成功: {len(document_content)} 字符")
+            else:
+                print(f"❌ [流式] 文档内容读取失败")
+        else:
+            print(f"❌ [流式] 未找到文档 ID: {request.use_document}")
     
     # 获取历史对话（最近5轮）
     history_messages = db.query(Message).filter(

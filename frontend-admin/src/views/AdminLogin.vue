@@ -46,10 +46,6 @@
           </el-button>
         </el-form-item>
       </el-form>
-      
-      <div class="back-link">
-        <router-link to="/login">← 返回用户登录</router-link>
-      </div>
     </div>
   </div>
 </template>
@@ -86,7 +82,7 @@ const handleLogin = async () => {
   
   if (result.success) {
     ElMessage.success('登录成功')
-    router.push('/admin/dashboard')
+    router.push('/dashboard')
   } else {
     ElMessage.error(result.message || '登录失败')
   }

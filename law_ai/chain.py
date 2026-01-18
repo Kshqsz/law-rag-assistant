@@ -293,6 +293,12 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
         web_context = x["web_context"]
         question = x["question"]
         history = x.get("history")  # 获取历史消息（可选）
+        uploaded_document = x.get("uploaded_document")  # 获取上传的文档（可选）
+        
+        # 如果有上传的文档，将其添加到 law_context 前面
+        if uploaded_document:
+            chain_logger.info(f"📎 检测到上传文档: {len(uploaded_document)} 字符")
+            law_context = f"【用户上传的文档内容】\n{uploaded_document}\n\n{'=' * 60}\n\n【知识库检索结果】\n{law_context}"
         
         chain_logger.info("=" * 60)
         chain_logger.info("📝 发送给大模型的 Prompt:")
@@ -334,15 +340,30 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
         answer_chain = prompt | get_model(callbacks=callbacks) | StrOutputParser()
         return answer_chain.invoke(prompt_input)
 
+    def enhance_search_with_document(x):
+        """结合文档内容增强检索问题"""
+        search_q = x.get("search_question", x["question"])
+        doc_content = x.get("uploaded_document")
+        
+        if doc_content:
+            # 提取文档关键信息（前300字符）
+            doc_preview = doc_content[:300]
+            # 生成增强的检索问题
+            enhanced_q = f"{search_q} 涉及内容：{doc_preview}"
+            chain_logger.info(f"📄 文档增强检索: 原问题={search_q[:50]}..., 增强后={enhanced_q[:100]}...")
+            return enhanced_q
+        return search_q
+    
     chain = (
         RunnableMap(
             {
-                # 使用 search_question（如果有）或 question 进行检索
-                "law_docs": lambda x: multi_query_retriver.invoke(x.get("search_question", x["question"])),
-                'web_docs': lambda x: web_retriever.invoke(x.get("search_question", x["question"])),
+                # 使用增强后的检索问题进行检索
+                "law_docs": lambda x: multi_query_retriver.invoke(enhance_search_with_document(x)),
+                'web_docs': lambda x: web_retriever.invoke(enhance_search_with_document(x)),
                 "question": lambda x: x["question"],  # 保留原问题用于回答
                 "search_question": lambda x: x.get("search_question", x["question"]),  # 保留检索问题
-                "history": lambda x: x.get("history")  # 传递历史消息
+                "history": lambda x: x.get("history"),  # 传递历史消息
+                "uploaded_document": lambda x: x.get("uploaded_document")  # 传递上传的文档内容
             }
         )
         | RunnableMap(
@@ -352,7 +373,8 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
                 "law_context": lambda x: combine_law_docs(x["law_docs"]),
                 "web_context": lambda x: combine_web_docs(x["web_docs"]),
                 "question": lambda x: x["question"],
-                "history": lambda x: x.get("history")  # 继续传递历史消息
+                "history": lambda x: x.get("history"),  # 继续传递历史消息
+                "uploaded_document": lambda x: x.get("uploaded_document")  # 继续传递文档内容
             }
         )
         | RunnableMap({
@@ -362,6 +384,7 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
             "web_context": lambda x: x["web_context"],
             "question": lambda x: x["question"],
             "history": lambda x: x.get("history"),  # 继续传递历史消息
+            "uploaded_document": lambda x: x.get("uploaded_document"),  # 继续传递文档内容
             "answer": log_prompt_and_call_llm
         })
     )

@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { useAdminStore } from '@/stores/admin'
 
 const routes = [
   {
@@ -27,19 +26,6 @@ const routes = [
         component: () => import('@/views/Favorites.vue')
       }
     ]
-  },
-  // 管理员路由
-  {
-    path: '/admin/login',
-    name: 'AdminLogin',
-    component: () => import('@/views/AdminLogin.vue'),
-    meta: { requiresAuth: false }
-  },
-  {
-    path: '/admin/dashboard',
-    name: 'AdminDashboard',
-    component: () => import('@/views/AdminDashboard.vue'),
-    meta: { requiresAdmin: true }
   }
 ]
 
@@ -51,27 +37,14 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
-  const adminStore = useAdminStore()
   
-  // 管理员页面
-  if (to.meta.requiresAdmin) {
-    if (!adminStore.isLoggedIn) {
-      next('/admin/login')
-    } else {
-      next()
-    }
-  }
-  // 普通用户页面
-  else if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+  // 需要用户认证的页面
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     next('/login')
   } 
-  // 已登录用户访问登录页
+  // 已登录用户访问登录页，重定向到首页
   else if (to.path === '/login' && userStore.isLoggedIn) {
     next('/')
-  }
-  // 已登录管理员访问管理登录页
-  else if (to.path === '/admin/login' && adminStore.isLoggedIn) {
-    next('/admin/dashboard')
   }
   else {
     next()

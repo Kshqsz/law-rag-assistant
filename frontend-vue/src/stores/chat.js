@@ -40,6 +40,8 @@ export const useChatStore = defineStore('chat', {
       this.isLoading = true
       this.isStreaming = true
       
+      console.log('[ChatStore] sendMessage called with:', { question, documentId })
+      
       // 添加用户消息
       this.messages.push({
         role: 'user',
@@ -64,6 +66,7 @@ export const useChatStore = defineStore('chat', {
         // 如果上传了文档但问题太宽泛，增强问题描述
         let enhancedQuestion = question
         if (documentId) {
+          console.log('[ChatStore] Document ID provided, checking if question needs enhancement')
           // 检查问题是否太宽泛（没有明确的法律关键词）
           const lawKeywords = ['法律', '法规', '条例', '规定', '合同', '诉讼', '责任', '权利', '义务', '违法', '犯罪', '刑事', '民事', '行政']
           const hasLawKeyword = lawKeywords.some(keyword => question.includes(keyword))
@@ -71,8 +74,17 @@ export const useChatStore = defineStore('chat', {
           if (!hasLawKeyword) {
             // 增强问题描述，让它更明确与法律相关
             enhancedQuestion = `根据上传的法律文件内容，${question}`
+            console.log('[ChatStore] Question enhanced to:', enhancedQuestion)
+          } else {
+            console.log('[ChatStore] Question already has law keywords')
           }
         }
+        
+        console.log('[ChatStore] Calling chatStream with:', { 
+          enhancedQuestion, 
+          conversationId: this.currentConversationId, 
+          documentId 
+        })
         
         // 使用流式接口（发送增强后的问题给后端，但显示原问题给用户）
         for await (const chunk of api.chatStream(enhancedQuestion, this.currentConversationId, documentId)) {

@@ -165,6 +165,9 @@ const sendMessage = async () => {
   const message = inputMessage.value.trim()
   if (!message || chatStore.isLoading) return
   
+  console.log('Sending message:', message)
+  console.log('With document ID:', uploadedDocumentId.value)
+  
   inputMessage.value = ''
   await chatStore.sendMessage(message, uploadedDocumentId.value)
   
@@ -186,14 +189,21 @@ const handleFileUpload = async (e) => {
   const file = e.target.files?.[0]
   if (!file) return
   
+  console.log('Uploading file:', file.name)
+  
   try {
     const result = await api.uploadDocument(file)
+    console.log('Upload result:', result)
+    
     uploadedFile.value = file
     // 后端返回的是 DocumentResponse，字段是 id 不是 document_id
     uploadedDocumentId.value = result.id
+    console.log('Document ID set to:', uploadedDocumentId.value)
+    
     ElMessage.success('文件上传成功')
   } catch (error) {
-    ElMessage.error('文件上传失败')
+    console.error('Upload error:', error)
+    ElMessage.error('文件上传失败: ' + (error.message || '未知错误'))
   }
   
   // 重置 input

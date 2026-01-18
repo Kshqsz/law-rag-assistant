@@ -63,6 +63,11 @@ law_prompt_template = """你是一个专业的律师，请你结合以下内容�
 {web_context}
 
 问题: {question}
+
+回答要求：
+1. 使用标准Markdown格式（如 **加粗**、*斜体*、列表等）
+2. 禁止使用HTML标签（如 <br>、<p>、<div> 等）
+3. 换行请直接使用两个换行符
 """
 LAW_PROMPT = PromptTemplate(
     template=law_prompt_template, input_variables=["law_context", "web_context", "question"]
@@ -83,19 +88,33 @@ law_prompt_with_history_template = """你是一个专业的律师，请你结合
 1. 如果当前问题涉及上下文（如"它"、"这个"、"那个"、"继续"等代词），请参考历史对话理解完整含义
 2. 如果是全新的问题，请直接回答，不要受历史对话影响
 3. 保持回答的专业性和准确性
+
+回答要求：
+1. 使用标准Markdown格式（如 **加粗**、*斜体*、列表等）
+2. 禁止使用HTML标签（如 <br>、<p>、<div> 等）
+3. 换行请直接使用两个换行符
 """
 LAW_PROMPT_WITH_HISTORY = PromptTemplate(
     template=law_prompt_with_history_template, 
     input_variables=["law_context", "web_context", "history", "question"]
 )
 
-check_law_prompt_template = """你是一个专业律师，请判断下面问题是否和法律相关，相关请回答YES，不想关请回答NO，不允许其它回答，不允许在答案中添加编造成分。
+check_law_prompt_template = """你是一个专业律师，请判断下面问题是否和法律相关，相关请回答YES，不相关请回答NO，不允许其它回答，不允许在答案中添加编造成分。
 
 {history}
 
 当前问题: {question}
 
-注意：如果问题包含代词（如"它"、"这个"、"那"、"这些"等），请结合历史对话判断是否与法律相关。
+判断规则：
+1. 如果问题直接提到法律、法规、犯罪、权利、合同、诉讼等法律概念，回答YES
+2. 如果问题包含代词或指代词（如"它"、"这个"、"那"、"这些"、"两者"、"这两者"、"二者"等）或宽泛问题（如"有什么区别"、"有什么关系"、"该怎么办"）：
+   - **必须检查历史对话是否为空**
+   - 如果历史对话为空或只有"历史对话："没有实际内容，**必须回答NO**
+   - 如果历史对话中明确讨论了法律概念（如"故意杀人"、"过失杀人"、"合同"、"侵权"等），则认为当前问题在延续法律讨论，回答YES
+   - 如果历史对话存在但不涉及法律，回答NO
+3. 对于日常生活问题（如"今天天气怎么样"、"你叫什么名字"），直接回答NO
+
+**特别注意**：如果问题很宽泛且历史对话为空，一定要回答NO！
 """
 
 CHECK_LAW_PROMPT = PromptTemplate(

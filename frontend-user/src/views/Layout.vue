@@ -112,7 +112,8 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useChatStore } from '@/stores/chat'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import jsPDF from 'jspdf'
+import html2pdf from 'html2pdf.js'
+import { marked } from 'marked'
 import api from '@/api'
 
 const router = useRouter()
@@ -173,58 +174,79 @@ const exportConversationToPDF = async (conversationId) => {
     const conversation = chatStore.conversations.find(c => c.id === conversationId)
     const title = conversation?.title || '法律咨询对话'
     
-    // 创建 PDF
-    const doc = new jsPDF()
+    // 创建临时 HTML 内容
+    const content = document.createElement('div')
+    content.style.padding = '20px'
+    content.style.fontFamily = 'Arial, "Microsoft YaHei", sans-serif'
+    content.style.fontSize = '14px'
+    content.style.lineHeight = '1.6'
+    content.style.color = '#333'
     
-    // 设置字体 (jsPDF 默认不支持中文，需要使用特殊处理)
-    let yPos = 20
-    const pageWidth = doc.internal.pageSize.getWidth()
-    const pageHeight = doc.internal.pageSize.getHeight()
-    const margin = 20
-    const maxWidth = pageWidth - 2 * margin
-    
-    // 标题
-    doc.setFontSize(16)
-    doc.text(title, margin, yPos)
-    yPos += 15
+    // 添加标题
+    const titleEl = document.createElement('h1')
+    titleEl.textContent = title
+    titleEl.style.fontSize = '24px'
+    titleEl.style.marginBottom = '10px'
+    titleEl.style.color = '#1a1a1a'
+    content.appendChild(titleEl)
     
     // 添加时间
-    doc.setFontSize(10)
-    doc.text(`导出时间: ${new Date().toLocaleString('zh-CN')}`, margin, yPos)
-    yPos += 15
+    const timeEl = document.createElement('p')
+    timeEl.textContent = `导出时间: ${new Date().toLocaleString('zh-CN')}`
+    timeEl.style.color = '#666'
+    timeEl.style.fontSize = '12px'
+    timeEl.style.marginBottom = '30px'
+    content.appendChild(timeEl)
     
-    // 遍历消息
-    for (const msg of messages) {
-      // 检查是否需要新页面
-      if (yPos > pageHeight - 40) {
-        doc.addPage()
-        yPos = 20
-      }
+    // 添加消息
+    messages.forEach(msg => {
+      const msgBox = document.createElement('div')
+      msgBox.style.marginBottom = '20px'
+      msgBox.style.padding = '15px'
+      msgBox.style.backgroundColor = msg.role === 'user' ? '#f0f9ff' : '#f9fafb'
+      msgBox.style.borderRadius = '8px'
+      msgBox.style.border = '1px solid ' + (msg.role === 'user' ? '#bfdbfe' : '#e5e7eb')
       
-      // 角色标识
-      doc.setFontSize(12)
-      const role = msg.role === 'user' ? '用户' : 'AI助手'
-      doc.text(`${role}:`, margin, yPos)
-      yPos += 8
+      const roleEl = document.createElement('div')
+      roleEl.textContent = msg.role === 'user' ? '👤 用户' : '⚖️ AI助手'
+      roleEl.style.fontWeight = 'bold'
+      roleEl.style.marginBottom = '8px'
+      roleEl.style.fontSize = '14px'
+      roleEl.style.color = msg.role === 'user' ? '#2563eb' : '#059669'
+      msgBox.appendChild(roleEl)
       
-      // 消息内容
-      doc.setFontSize(10)
-      const lines = doc.splitTextToSize(msg.content, maxWidth)
+      const contentEl = document.createElement('div')
+      // 使用 marked 渲染 Markdown 格式
+      contentEl.innerHTML = marked.parse(msg.content)
+      contentEl.style.wordBreak = 'break-word'
+      contentEl.style.fontSize = '13px'
+      contentEl.style.lineHeight = '1.8'
+      // 为渲染后的元素添加样式
+      const style = document.createElement('style')
+      style.textContent = `
+        h1, h2, h3 { margin-top: 16px; margin-bottom: 8px; }
+        p { margin: 8px 0; }
+        ul, ol { margin: 8px 0; padding-left: 24px; }
+        code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }
+        pre { background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; }
+        blockquote { border-left: 4px solid #ddd; margin: 8px 0; padding-left: 12px; color: #666; }
+      `
+      contentEl.appendChild(style)
+      msgBox.appendChild(contentEl)
       
-      for (const line of lines) {
-        if (yPos > pageHeight - 30) {
-          doc.addPage()
-          yPos = 20
-        }
-        doc.text(line, margin, yPos)
-        yPos += 6
-      }
-      
-      yPos += 10
+      content.appendChild(msgBox)
+    })
+    
+    // 使用 html2pdf 生成 PDF
+    const opt = {
+      margin: 10,
+      filename: `${title}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     }
     
-    // 保存 PDF
-    doc.save(`${title}.pdf`)
+    await html2pdf().set(opt).from(content).save()
     ElMessage.success('PDF导出成功')
   } catch (error) {
     console.error('导出PDF失败:', error)

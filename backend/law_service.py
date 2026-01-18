@@ -166,7 +166,11 @@ class LawQAService:
                 print(f"📝 重写后的问题: {search_question[:100]}{'...' if len(search_question) > 100 else ''}")
             
             # 准备输入参数（检索使用重写后的问题，但回答仍使用原问题）
-            chain_input = {"question": question, "search_question": search_question}
+            chain_input = {
+                "question": question, 
+                "search_question": search_question,
+                "uploaded_document": use_document_content  # 添加上传的文档内容
+            }
             
             # 如果有历史对话，添加到输入中
             if history:
@@ -255,7 +259,11 @@ class LawQAService:
                 app_logger.info(f"📝 重写后的检索问题: {search_question[:50]}...")
             
             # 准备输入参数（检索使用重写后的问题，但回答仍使用原问题）
-            chain_input = {"question": question, "search_question": search_question}
+            chain_input = {
+                "question": question, 
+                "search_question": search_question,
+                "uploaded_document": use_document_content  # 添加上传的文档内容
+            }
             if history:
                 chain_input["history"] = history
             
