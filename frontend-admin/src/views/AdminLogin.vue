@@ -3,7 +3,7 @@
     <div class="login-container fade-in">
       <!-- Logo -->
       <div class="logo-section">
-        <div class="logo-icon">📊</div>
+        <img src="/image/logo/logo.png" class="logo-icon" alt="法律AI助手" />
         <h1 class="logo-title">管理员后台</h1>
         <p class="logo-subtitle">法律AI助手 - 数据统计与分析</p>
       </div>
@@ -113,8 +113,12 @@ const handleLogin = async () => {
   margin-bottom: 40px;
   
   .logo-icon {
-    font-size: 4rem;
-    margin-bottom: 16px;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin: 0 auto 16px;
+    display: block;
+    border-radius: 20px;
   }
   
   .logo-title {

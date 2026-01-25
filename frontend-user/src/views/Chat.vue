@@ -4,7 +4,7 @@
     <div class="messages-container" ref="messagesContainer">
       <!-- 欢迎界面 -->
       <div v-if="chatStore.messages.length === 0" class="welcome-section fade-in">
-        <div class="welcome-icon">⚖️</div>
+        <img src="/image/logo/logo.png" class="welcome-icon" alt="法律AI助手" />
         <h1 class="welcome-title">法律AI助手</h1>
         <p class="welcome-desc">您好！我是您的智能法律顾问，可以为您解答法律相关问题</p>
         
@@ -32,7 +32,7 @@
           <div class="message">
             <div class="message-avatar">
               <span v-if="msg.role === 'user'">👤</span>
-              <span v-else>⚖️</span>
+              <img v-else src="/image/logo/logo.png" class="avatar-icon" alt="AI" />
             </div>
             <div class="message-content">
               <div class="message-text" v-html="renderMarkdown(msg.content)"></div>
@@ -280,8 +280,12 @@ const handleFavorite = async (msg, index) => {
   text-align: center;
   
   .welcome-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    display: block;
+    object-fit: contain;
+    border-radius: 20px;
   }
   
   .welcome-title {
@@ -372,6 +376,13 @@ const handleFavorite = async (msg, index) => {
   justify-content: center;
   font-size: 1.2rem;
   flex-shrink: 0;
+  
+  .avatar-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    border-radius: 50%;
+  }
 }
 
 .message-content {

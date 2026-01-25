@@ -3,7 +3,7 @@
     <!-- 顶部导航 -->
     <header class="dashboard-header">
       <div class="header-left">
-        <span class="logo-icon">📊</span>
+        <img src="/image/logo/logo.png" class="logo-icon" alt="法律AI助手" />
         <span class="logo-text">管理后台</span>
       </div>
       <div class="header-right">
@@ -505,7 +505,10 @@ const handleLogout = async () => {
     gap: 12px;
     
     .logo-icon {
-      font-size: 1.8rem;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 6px;
     }
     
     .logo-text {

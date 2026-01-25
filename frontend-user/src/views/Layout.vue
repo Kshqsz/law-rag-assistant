@@ -6,7 +6,7 @@
         <!-- Logo -->
         <div class="sidebar-header">
           <div class="logo">
-            <span class="logo-icon">⚖️</span>
+            <img src="/image/logo/logo.png" class="logo-icon" alt="法律AI助手" />
             <span v-show="!sidebarCollapsed" class="logo-text">法律AI助手</span>
           </div>
           <el-button 
@@ -248,7 +248,7 @@ const exportConversationToPDF = async (conversationId) => {
       msgBox.style.border = '1px solid ' + (msg.role === 'user' ? '#bfdbfe' : '#e5e7eb')
       
       const roleEl = document.createElement('div')
-      roleEl.textContent = msg.role === 'user' ? '👤 用户' : '⚖️ AI助手'
+      roleEl.textContent = msg.role === 'user' ? '👤 用户' : '🤖 AI助手'
       roleEl.style.fontWeight = 'bold'
       roleEl.style.marginBottom = '8px'
       roleEl.style.fontSize = '14px'
@@ -358,7 +358,10 @@ const handleLogout = async () => {
   margin-bottom: 16px;
   
   .logo-icon {
-    font-size: 1.8rem;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 8px;
   }
   
   .logo-text {
