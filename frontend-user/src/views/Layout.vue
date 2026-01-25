@@ -80,7 +80,7 @@
             </el-avatar>
             <span class="username">{{ userStore.username }}</span>
           </div>
-          <el-button class="logout-btn" link @click="handleLogout">
+          <el-button class="logout-btn" link @click="handleLogout" title="退出登录">
             <el-icon><SwitchButton /></el-icon>
           </el-button>
         </div>
@@ -97,6 +97,21 @@
     
     <!-- 主内容区 -->
     <main class="main-content">
+      <!-- 右上角主题切换按钮 -->
+      <div class="theme-toggle-wrapper">
+        <el-button 
+          class="theme-toggle-btn-top" 
+          circle 
+          @click="toggleTheme" 
+          :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
+        >
+          <el-icon :size="20">
+            <Sunny v-if="isDark" />
+            <Moon v-else />
+          </el-icon>
+        </el-button>
+      </div>
+      
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -121,10 +136,35 @@ const userStore = useUserStore()
 const chatStore = useChatStore()
 
 const sidebarCollapsed = ref(false)
+const isDark = ref(false)
 
+// 初始化主题
 onMounted(() => {
   chatStore.fetchConversations()
+  
+  // 从 localStorage 读取主题设置
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    isDark.value = true
+    document.documentElement.classList.add('dark')
+  } else {
+    isDark.value = false
+    document.documentElement.classList.remove('dark')
+  }
 })
+
+// 切换主题
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
+  }
+}
 
 const handleNewChat = () => {
   chatStore.newConversation()
@@ -437,6 +477,8 @@ const handleLogout = async () => {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  min-width: 0;
   
   .user-avatar {
     background: var(--accent-color);
@@ -447,15 +489,21 @@ const handleLogout = async () => {
     font-size: 0.95rem;
     color: var(--text-primary);
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
 .logout-btn {
   color: var(--text-secondary);
   font-size: 1.2rem;
+  padding: 6px;
+  min-width: unset;
   
   &:hover {
     color: var(--danger-color);
+    background: var(--bg-hover);
   }
 }
 
@@ -487,6 +535,35 @@ const handleLogout = async () => {
   flex: 1;
   overflow: hidden;
   background: var(--bg-primary);
+  position: relative;
+}
+
+.theme-toggle-wrapper {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 100;
+}
+
+.theme-toggle-btn-top {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  
+  &:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: rotate(20deg) scale(1.05);
+  }
+  
+  &:active {
+    transform: rotate(20deg) scale(0.95);
+  }
 }
 
 .fade-enter-active,
