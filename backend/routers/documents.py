@@ -158,12 +158,32 @@ async def get_document_content(
         )
     
     try:
-        # 目前只支持读取文本文件
         if document.file_type in [".txt", ".md"]:
             with open(document.file_path, "r", encoding="utf-8") as f:
                 content = f.read()
+        elif document.file_type == ".pdf":
+            try:
+                from PyPDF2 import PdfReader
+                reader = PdfReader(document.file_path)
+                text_parts = []
+                for page in reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_parts.append(page_text)
+                content = '\n'.join(text_parts) if text_parts else "无法提取 PDF 内容"
+            except ImportError:
+                content = "服务端未安装 PyPDF2，无法解析 PDF 文件"
+        elif document.file_type in [".docx"]:
+            try:
+                from docx import Document as DocxDocument
+                doc = DocxDocument(document.file_path)
+                text_parts = [para.text for para in doc.paragraphs if para.text.strip()]
+                content = '\n'.join(text_parts) if text_parts else "无法提取 Word 内容"
+            except ImportError:
+                content = "服务端未安装 python-docx，无法解析 Word 文件"
+        elif document.file_type == ".doc":
+            content = "暂不支持 .doc 格式，请转换为 .docx 后上传"
         else:
-            # PDF 和 Word 文档需要特殊处理
             content = f"暂不支持预览 {document.file_type} 格式的文件内容"
         
         return {"content": content}
@@ -234,13 +254,59 @@ async def process_document(
         return document
     
     try:
-        # TODO: 实现文档向量化入库逻辑
         # 1. 读取文档内容
-        # 2. 分割文档
-        # 3. 向量化
-        # 4. 存入 ChromaDB
+        content = None
+        if document.file_type in [".txt", ".md"]:
+            with open(document.file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        elif document.file_type == ".pdf":
+            from PyPDF2 import PdfReader
+            reader = PdfReader(document.file_path)
+            text_parts = []
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text_parts.append(page_text)
+            content = '\n'.join(text_parts)
+        elif document.file_type in [".docx"]:
+            from docx import Document as DocxDocument
+            doc = DocxDocument(document.file_path)
+            text_parts = [para.text for para in doc.paragraphs if para.text.strip()]
+            content = '\n'.join(text_parts)
         
-        # 暂时只标记为已处理
+        if not content:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="无法提取文档内容"
+            )
+        
+        # 2. 分割文档
+        from langchain.text_splitter import RecursiveCharacterTextSplitter
+        from langchain.schema import Document as LangDocument
+        
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=50,
+            separators=["\n\n", "\n", "。", "；", " ", ""]
+        )
+        
+        lang_doc = LangDocument(
+            page_content=content,
+            metadata={"source": document.original_filename, "doc_id": str(document.id)}
+        )
+        chunks = splitter.split_documents([lang_doc])
+        
+        # 3. 向量化并存入 ChromaDB
+        from law_ai.utils import get_embedding_model, get_vectorstore
+        
+        embedder = get_embedding_model()
+        vectorstore = get_vectorstore("user_docs")
+        
+        texts = [chunk.page_content for chunk in chunks]
+        metadatas = [chunk.metadata for chunk in chunks]
+        vectorstore.add_texts(texts=texts, metadatas=metadatas, embedding=embedder)
+        
+        # 4. 标记为已处理
         document.is_processed = True
         db.commit()
         db.refresh(document)

@@ -185,5 +185,15 @@ export default {
   
   // 管理员
   getAdminStats: () => 
-    instance.get('/admin/stats')
+    instance.get('/admin/stats'),
+  
+  // 用户管理
+  getUsers: (page = 1, pageSize = 20, keyword = '') =>
+    instance.get('/admin/users', { params: { page, page_size: pageSize, keyword } }),
+  
+  updateUser: (userId, data) =>
+    instance.put(`/admin/users/${userId}`, data),
+  
+  deleteUser: (userId) =>
+    instance.delete(`/admin/users/${userId}`)
 }

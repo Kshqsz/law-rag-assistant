@@ -71,6 +71,9 @@ class ConversationResponse(BaseModel):
 class ConversationListResponse(BaseModel):
     """对话列表响应"""
     conversations: List[ConversationResponse]
+    total: int = 0
+    page: int = 1
+    page_size: int = 20
 
 
 # ==================== 消息相关 ====================
@@ -87,6 +90,7 @@ class MessageResponse(BaseModel):
     content: str
     law_context: Optional[str] = None
     web_context: Optional[str] = None
+    feedback: int = 0  # 反馈状态: 1=好评, -1=差评, 0=未评价
     created_at: datetime
     
     class Config:
@@ -175,6 +179,30 @@ class FavoriteResponse(BaseModel):
 class FavoriteListResponse(BaseModel):
     """收藏列表响应"""
     favorites: List[FavoriteResponse]
+    total: int = 0
+    page: int = 1
+    page_size: int = 20
+
+
+# ==================== 反馈相关 ====================
+
+class FeedbackCreate(BaseModel):
+    """创建反馈请求"""
+    message_id: int = Field(..., description="消息ID")
+    rating: int = Field(..., description="评分: 1=好评, -1=差评")
+    comment: Optional[str] = Field(None, description="可选的文字反馈")
+
+
+class FeedbackResponse(BaseModel):
+    """反馈响应"""
+    id: int
+    message_id: int
+    rating: int
+    comment: Optional[str] = None
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
 
 
 # ==================== 管理员统计相关 ====================
@@ -198,6 +226,21 @@ class CategoryStatItem(BaseModel):
     percentage: float
 
 
+class FeedbackStatItem(BaseModel):
+    """反馈统计数据项"""
+    date: str
+    positive: int
+    negative: int
+
+
+class TokenTrendItem(BaseModel):
+    """Token 使用趋势数据项"""
+    date: str
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+
+
 class AdminStatsResponse(BaseModel):
     """管理员统计响应"""
     total_users: int
@@ -207,3 +250,44 @@ class AdminStatsResponse(BaseModel):
     message_growth: List[UserGrowthItem]  # 复用UserGrowthItem结构
     top_questions: List[TopQuestionItem]
     category_stats: List[CategoryStatItem]
+    # 反馈满意度统计
+    total_feedbacks: int = 0
+    positive_feedbacks: int = 0
+    negative_feedbacks: int = 0
+    satisfaction_rate: float = 0.0  # 满意度百分比
+    feedback_trend: List[FeedbackStatItem] = []  # 近30天反馈趋势
+    # Token 使用量统计
+    total_tokens: int = 0
+    today_tokens: int = 0
+    token_trend: List[TokenTrendItem] = []  # 近30天token趋势
+
+
+# ==================== 管理员用户管理 ====================
+
+class AdminUserItem(BaseModel):
+    """管理员用户列表项"""
+    id: int
+    username: str
+    is_active: bool
+    is_admin: bool
+    created_at: datetime
+    conversation_count: int = 0
+    message_count: int = 0
+    
+    class Config:
+        from_attributes = True
+
+
+class AdminUserListResponse(BaseModel):
+    """管理员用户列表响应"""
+    users: List[AdminUserItem]
+    total: int
+    page: int
+    page_size: int
+
+
+class AdminUserUpdateRequest(BaseModel):
+    """管理员修改用户信息请求"""
+    is_active: Optional[bool] = None
+    is_admin: Optional[bool] = None
+    new_password: Optional[str] = Field(None, min_length=6, max_length=100)

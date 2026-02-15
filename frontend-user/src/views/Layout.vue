@@ -39,7 +39,7 @@
             <span class="nav-label">历史对话</span>
             <div class="conversation-list">
               <div 
-                v-for="conv in chatStore.conversations.slice(0, 10)" 
+                v-for="conv in chatStore.conversations" 
                 :key="conv.id"
                 class="conversation-item"
                 :class="{ active: chatStore.currentConversationId === conv.id }"
@@ -67,6 +67,13 @@
               </div>
               <div v-if="chatStore.conversations.length === 0" class="no-conversations">
                 暂无对话
+              </div>
+              <div 
+                v-if="chatStore.hasMoreConversations" 
+                class="load-more-btn"
+                @click="chatStore.loadMoreConversations()"
+              >
+                加载更多...
               </div>
             </div>
           </div>
@@ -465,6 +472,21 @@ const handleLogout = async () => {
   padding: 12px;
   color: var(--text-muted);
   font-size: 0.85rem;
+}
+
+.load-more-btn {
+  padding: 8px 12px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: var(--hover-bg);
+    color: var(--accent-color);
+  }
 }
 
 .user-area {

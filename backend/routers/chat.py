@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 import json
 
-from ..database import get_db, Conversation, Message, Document, User
+from ..database import get_db, Conversation, Message, Document, User, QuestionLog
 from ..schemas import (
     ChatRequest, ChatResponse, MessageResponse, SuccessResponse
 )
@@ -21,11 +21,41 @@ router = APIRouter(prefix="/chat", tags=["聊天"])
 
 
 async def read_document_content(file_path: str) -> str:
-    """读取文档内容"""
+    """读取文档内容，支持 txt、md、pdf、docx 格式"""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
+        ext = file_path.rsplit('.', 1)[-1].lower() if '.' in file_path else ''
+        
+        if ext in ('txt', 'md'):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        elif ext == 'pdf':
+            try:
+                from PyPDF2 import PdfReader
+                reader = PdfReader(file_path)
+                text_parts = []
+                for page in reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_parts.append(page_text)
+                return '\n'.join(text_parts) if text_parts else None
+            except ImportError:
+                print("⚠️ PyPDF2 未安装，无法解析 PDF 文件")
+                return None
+        elif ext in ('docx',):
+            try:
+                from docx import Document as DocxDocument
+                doc = DocxDocument(file_path)
+                text_parts = [para.text for para in doc.paragraphs if para.text.strip()]
+                return '\n'.join(text_parts) if text_parts else None
+            except ImportError:
+                print("⚠️ python-docx 未安装，无法解析 Word 文件")
+                return None
+        else:
+            # 尝试作为文本读取
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
     except Exception as e:
+        print(f"❌ 读取文档失败: {e}")
         return None
 
 
@@ -73,6 +103,13 @@ async def chat(
         content=request.message
     )
     db.add(user_message)
+    
+    # 记录问题日志
+    question_log = QuestionLog(
+        user_id=current_user.id,
+        question=request.message
+    )
+    db.add(question_log)
     db.commit()
     
     # 如果使用文档，读取文档内容
@@ -114,6 +151,11 @@ async def chat(
         history=history if history else None
     )
     
+    # 记录 token 使用量
+    from ..law_service import save_token_usage
+    prompt_text = request.message + (document_content or "") + " ".join([m["content"] for m in history])
+    save_token_usage(current_user.id, conversation.id, prompt_text, answer)
+    
     # 保存AI回答
     ai_message = Message(
         conversation_id=conversation.id,
@@ -129,6 +171,21 @@ async def chat(
     # 更新对话时间
     from datetime import datetime
     conversation.updated_at = datetime.utcnow()
+    
+    # 如果是新对话（只有1条用户消息），自动生成标题
+    msg_count = db.query(Message).filter(
+        Message.conversation_id == conversation.id,
+        Message.role == "user"
+    ).count()
+    
+    new_title = None
+    if msg_count == 1:
+        try:
+            new_title = await law_qa_service.generate_title(request.message, answer)
+            conversation.title = new_title
+        except Exception as e:
+            print(f"⚠️ 自动生成标题失败: {e}")
+    
     db.commit()
     
     return ChatResponse(
@@ -181,6 +238,13 @@ async def chat_stream(
         content=request.message
     )
     db.add(user_message)
+    
+    # 记录问题日志
+    question_log = QuestionLog(
+        user_id=current_user.id,
+        question=request.message
+    )
+    db.add(question_log)
     db.commit()
     
     # 如果使用文档，读取文档内容
@@ -248,6 +312,31 @@ async def chat_stream(
             db.refresh(ai_message)
             message_id = ai_message.id
             
+            # 记录 token 使用量
+            try:
+                from ..law_service import save_token_usage
+                prompt_text = request.message + (document_content or "") + " ".join([m["content"] for m in history])
+                save_token_usage(current_user.id, conversation_id, prompt_text, full_answer)
+            except Exception as e:
+                print(f"⚠️ [流式] 记录token使用量失败: {e}")
+            
+            # 如果是新对话（只有1条用户消息），自动生成标题
+            msg_count = db.query(Message).filter(
+                Message.conversation_id == conversation_id,
+                Message.role == "user"
+            ).count()
+            
+            new_title = None
+            if msg_count == 1:
+                try:
+                    new_title = await law_qa_service.generate_title(request.message, full_answer)
+                    conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+                    if conv:
+                        conv.title = new_title
+                        db.commit()
+                except Exception as e:
+                    print(f"⚠️ [流式] 自动生成标题失败: {e}")
+            
             # 发送完成信号，包含上下文
             completion_data = {
                 'done': True,
@@ -256,6 +345,8 @@ async def chat_stream(
                 'law_context': law_ctx,
                 'web_context': web_ctx
             }
+            if new_title:
+                completion_data['new_title'] = new_title
             yield f"data: {json.dumps(completion_data, ensure_ascii=False)}\n\n"
             
         except Exception as e:

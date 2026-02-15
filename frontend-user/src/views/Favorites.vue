@@ -52,6 +52,17 @@
             </span>
           </div>
         </div>
+        
+        <!-- 分页 -->
+        <div class="pagination-wrapper" v-if="total > pageSize">
+          <el-pagination
+            v-model:current-page="currentPage"
+            :page-size="pageSize"
+            :total="total"
+            layout="prev, pager, next, total"
+            @current-change="fetchFavorites"
+          />
+        </div>
       </div>
     </div>
     
@@ -107,6 +118,9 @@ const favorites = ref([])
 const loading = ref(true)
 const detailVisible = ref(false)
 const currentItem = ref(null)
+const currentPage = ref(1)
+const pageSize = ref(12)
+const total = ref(0)
 
 onMounted(async () => {
   await fetchFavorites()
@@ -115,8 +129,9 @@ onMounted(async () => {
 const fetchFavorites = async () => {
   loading.value = true
   try {
-    const res = await api.getFavorites()
+    const res = await api.getFavorites(currentPage.value, pageSize.value)
     favorites.value = res.favorites || []
+    total.value = res.total || 0
   } catch (error) {
     console.error('获取收藏失败:', error)
   } finally {
@@ -231,6 +246,12 @@ const deleteFavorite = async (id) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 }
 
 .favorite-card {

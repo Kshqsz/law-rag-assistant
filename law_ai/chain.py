@@ -393,6 +393,13 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
 
 
 def get_hypo_questions_chain(config: Any) -> Chain:
+    """生成假设问题链（用于文档向量化时生成额外的检索问题）
+    
+    使用场景：在文档向量化入库时（documents.py 的 process_document），
+    可为每个文档块生成假设问题，增强向量检索的命中率。
+    
+    注意：此链使用 OpenAI Functions API 格式，需要模型支持 function calling。
+    """
     model = get_model()
 
     functions = [

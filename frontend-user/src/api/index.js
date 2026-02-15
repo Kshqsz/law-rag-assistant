@@ -103,8 +103,8 @@ export default {
     }),
   
   // 对话
-  getConversations: () => 
-    instance.get('/conversations'),
+  getConversations: (page = 1, pageSize = 20) => 
+    instance.get('/conversations', { params: { page, page_size: pageSize } }),
   
   getMessages: (conversationId) => 
     instance.get(`/conversations/${conversationId}/messages`),
@@ -184,14 +184,24 @@ export default {
   },
   
   // 收藏
-  getFavorites: () => 
-    instance.get('/favorites'),
+  getFavorites: (page = 1, pageSize = 20) => 
+    instance.get('/favorites', { params: { page, page_size: pageSize } }),
   
   addFavorite: (question, answer, lawContext = '', webResults = '') => 
     instance.post('/favorites', { question, answer, law_context: lawContext, web_results: webResults }),
   
   deleteFavorite: (favoriteId) => 
     instance.delete(`/favorites/${favoriteId}`),
+  
+  // 反馈
+  submitFeedback: (messageId, rating, comment = '') =>
+    instance.post('/feedback', { message_id: messageId, rating, comment }),
+  
+  getMessageFeedback: (messageId) =>
+    instance.get(`/feedback/message/${messageId}`),
+  
+  deleteFeedback: (messageId) =>
+    instance.delete(`/feedback/${messageId}`),
   
   // 管理员
   getAdminStats: () => 

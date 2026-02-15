@@ -153,7 +153,8 @@ MULTI_QUERY_PROMPT_TEMPLATE = PromptTemplate(
     template=multi_query_prompt_template, input_variables=["question"]
 )
 
-# 通俗总结提示词
+# 通俗总结提示词（用于生成简短通俗的总结回答）
+# 使用场景：在 law_service.py 的 ask_question 中，可选地为用户生成通俗易懂的总结
 summary_prompt_template = """你是一个专业且善于沟通的律师。现在你已经为用户提供了详细的法律依据和网络资料。
 
 请基于以下内容，用通俗易懂的语言为用户总结回答：

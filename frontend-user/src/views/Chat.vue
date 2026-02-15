@@ -56,6 +56,22 @@
               
               <!-- 操作按钮 -->
               <div v-if="msg.role === 'assistant' && !msg.isStreaming" class="message-actions">
+                <el-button 
+                  link size="small" 
+                  :class="{ 'is-active': msg.feedback === 1 }"
+                  @click="handleFeedback(msg, index, 1)"
+                >
+                  <span class="feedback-emoji">👍</span>
+                  {{ msg.feedback === 1 ? '已赞' : '赞' }}
+                </el-button>
+                <el-button 
+                  link size="small" 
+                  :class="{ 'is-active-negative': msg.feedback === -1 }"
+                  @click="handleFeedback(msg, index, -1)"
+                >
+                  <span class="feedback-emoji">👎</span>
+                  {{ msg.feedback === -1 ? '已踩' : '踩' }}
+                </el-button>
                 <el-button link size="small" @click="handleCopy(msg.content)">
                   <el-icon><DocumentCopy /></el-icon>
                   复制
@@ -258,6 +274,29 @@ const handleFavorite = async (msg, index) => {
     ElMessage.error('收藏失败')
   }
 }
+
+const handleFeedback = async (msg, index, rating) => {
+  if (!msg.message_id) {
+    ElMessage.warning('暂时无法评价，请刷新后重试')
+    return
+  }
+  
+  try {
+    // 如果已有相同评价，则取消
+    if (msg.feedback === rating) {
+      await api.deleteFeedback(msg.message_id)
+      chatStore.messages[index].feedback = 0
+      ElMessage.success('已取消评价')
+      return
+    }
+    
+    await api.submitFeedback(msg.message_id, rating)
+    chatStore.messages[index].feedback = rating
+    ElMessage.success(rating === 1 ? '感谢您的好评 👍' : '感谢您的反馈 👎')
+  } catch {
+    ElMessage.error('评价提交失败')
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -357,6 +396,7 @@ const handleFavorite = async (msg, index) => {
   &.assistant .message-content {
     background: var(--bg-tertiary);
     border-radius: 20px 20px 20px 4px;
+    max-width: 85%;
   }
 }
 
@@ -479,6 +519,22 @@ const handleFavorite = async (msg, index) => {
     &:hover {
       color: var(--accent-color);
     }
+    
+    &.is-active {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+    
+    &.is-active-negative {
+      color: var(--danger-color);
+      font-weight: 600;
+    }
+  }
+  
+  .feedback-emoji {
+    font-size: 16px;
+    margin-right: 2px;
+    line-height: 1;
   }
 }
 

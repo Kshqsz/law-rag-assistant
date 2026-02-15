@@ -41,5 +41,9 @@ requests
 tqdm
 reportlab
 
+# 文档解析
+PyPDF2>=3.0.0
+python-docx>=1.0.0
+
 # 旧版 Gradio（可选，保留原有功能）
 gradio==3.50.0

@@ -22,6 +22,7 @@ from backend.routers.chat import router as chat_router
 from backend.routers.documents import router as documents_router
 from backend.routers.favorites import router as favorites_router
 from backend.routers.admin import router as admin_router
+from backend.routers.feedback import router as feedback_router
 
 # 创建 FastAPI 应用
 app = FastAPI(
@@ -66,6 +67,7 @@ app.include_router(chat_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
 app.include_router(favorites_router, prefix="/api")
 app.include_router(admin_router, prefix="/api")
+app.include_router(feedback_router, prefix="/api")
 
 
 @app.get("/", tags=["根路径"])

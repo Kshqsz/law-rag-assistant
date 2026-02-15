@@ -7,8 +7,8 @@ from sqlalchemy import func
 from collections import Counter, defaultdict
 import re
 
-from ..database import get_db, User, Conversation, Message, QuestionLog
-from ..schemas import AdminStatsResponse, SuccessResponse
+from ..database import get_db, User, Conversation, Message, QuestionLog, Feedback, TokenUsage
+from ..schemas import AdminStatsResponse, SuccessResponse, AdminUserListResponse, AdminUserItem, AdminUserUpdateRequest
 from ..auth import get_current_user
 
 router = APIRouter(prefix="/admin", tags=["管理员"])
@@ -274,6 +274,55 @@ async def get_admin_stats(
         for cat, count in category_counter.most_common()
     ]
     
+    # ========== 反馈满意度统计 ==========
+    total_feedbacks = db.query(Feedback).count()
+    positive_feedbacks = db.query(Feedback).filter(Feedback.rating == 1).count()
+    negative_feedbacks = db.query(Feedback).filter(Feedback.rating == -1).count()
+    satisfaction_rate = round(positive_feedbacks / total_feedbacks * 100, 1) if total_feedbacks > 0 else 0.0
+    
+    # 反馈趋势（最近30天）
+    feedback_trend = []
+    for i in range(30, -1, -1):
+        date = datetime.utcnow() - timedelta(days=i)
+        date_str = date.strftime("%Y-%m-%d")
+        pos = db.query(Feedback).filter(
+            Feedback.rating == 1,
+            func.date(Feedback.created_at) == date_str
+        ).count()
+        neg = db.query(Feedback).filter(
+            Feedback.rating == -1,
+            func.date(Feedback.created_at) == date_str
+        ).count()
+        if pos > 0 or neg > 0:
+            feedback_trend.append({"date": date_str, "positive": pos, "negative": neg})
+    
+    # ========== Token 使用量统计 ==========
+    total_tokens = db.query(func.coalesce(func.sum(TokenUsage.total_tokens), 0)).scalar()
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+    today_tokens = db.query(func.coalesce(func.sum(TokenUsage.total_tokens), 0)).filter(
+        func.date(TokenUsage.created_at) == today_str
+    ).scalar()
+    
+    # Token 使用趋势（最近30天）
+    token_trend = []
+    for i in range(30, -1, -1):
+        date = datetime.utcnow() - timedelta(days=i)
+        date_str = date.strftime("%Y-%m-%d")
+        day_prompt = db.query(func.coalesce(func.sum(TokenUsage.prompt_tokens), 0)).filter(
+            func.date(TokenUsage.created_at) == date_str
+        ).scalar()
+        day_completion = db.query(func.coalesce(func.sum(TokenUsage.completion_tokens), 0)).filter(
+            func.date(TokenUsage.created_at) == date_str
+        ).scalar()
+        day_total = day_prompt + day_completion
+        if day_total > 0:
+            token_trend.append({
+                "date": date_str,
+                "prompt_tokens": day_prompt,
+                "completion_tokens": day_completion,
+                "total_tokens": day_total
+            })
+    
     return {
         "total_users": total_users,
         "total_conversations": total_conversations,
@@ -281,8 +330,126 @@ async def get_admin_stats(
         "user_growth": user_growth,
         "message_growth": message_growth,
         "top_questions": top_questions,
-        "category_stats": category_stats
+        "category_stats": category_stats,
+        "total_feedbacks": total_feedbacks,
+        "positive_feedbacks": positive_feedbacks,
+        "negative_feedbacks": negative_feedbacks,
+        "satisfaction_rate": satisfaction_rate,
+        "feedback_trend": feedback_trend,
+        "total_tokens": total_tokens,
+        "today_tokens": today_tokens,
+        "token_trend": token_trend
     }
+
+
+# ==================== 用户管理 ====================
+
+@router.get("/users", response_model=AdminUserListResponse, summary="获取用户列表")
+async def list_users(
+    page: int = 1,
+    page_size: int = 20,
+    keyword: str = "",
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """获取所有用户列表（分页、可搜索）"""
+    query = db.query(User)
+    
+    if keyword:
+        query = query.filter(User.username.contains(keyword))
+    
+    total = query.count()
+    users = query.order_by(User.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    
+    user_items = []
+    for user in users:
+        conv_count = db.query(func.count(Conversation.id)).filter(
+            Conversation.user_id == user.id
+        ).scalar()
+        msg_count = db.query(func.count(Message.id)).filter(
+            Message.conversation_id.in_(
+                db.query(Conversation.id).filter(Conversation.user_id == user.id)
+            ),
+            Message.role == "user"
+        ).scalar()
+        
+        user_items.append(AdminUserItem(
+            id=user.id,
+            username=user.username,
+            is_active=user.is_active,
+            is_admin=user.is_admin,
+            created_at=user.created_at,
+            conversation_count=conv_count,
+            message_count=msg_count
+        ))
+    
+    return AdminUserListResponse(
+        users=user_items,
+        total=total,
+        page=page,
+        page_size=page_size
+    )
+
+
+@router.put("/users/{user_id}", response_model=SuccessResponse, summary="修改用户信息")
+async def update_user(
+    user_id: int,
+    request: AdminUserUpdateRequest,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """修改用户状态、角色或密码"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    
+    # 不允许修改自己的管理员状态
+    if user.id == current_user.id and request.is_admin is not None and not request.is_admin:
+        raise HTTPException(status_code=400, detail="不能取消自己的管理员权限")
+    
+    if request.is_active is not None:
+        user.is_active = request.is_active
+    if request.is_admin is not None:
+        user.is_admin = request.is_admin
+    if request.new_password:
+        from ..auth import get_password_hash
+        user.hashed_password = get_password_hash(request.new_password)
+    
+    db.commit()
+    
+    changes = []
+    if request.is_active is not None:
+        changes.append(f"状态: {'启用' if request.is_active else '禁用'}")
+    if request.is_admin is not None:
+        changes.append(f"角色: {'管理员' if request.is_admin else '普通用户'}")
+    if request.new_password:
+        changes.append("密码已重置")
+    
+    return {"success": True, "message": f"用户 {user.username} 已更新: {', '.join(changes)}"}
+
+
+@router.delete("/users/{user_id}", response_model=SuccessResponse, summary="删除用户")
+async def delete_user(
+    user_id: int,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """删除用户及其所有数据"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    
+    if user.id == current_user.id:
+        raise HTTPException(status_code=400, detail="不能删除自己的账号")
+    
+    if user.is_admin:
+        raise HTTPException(status_code=400, detail="不能删除管理员账号，请先取消其管理员权限")
+    
+    username = user.username
+    db.delete(user)
+    db.commit()
+    
+    return {"success": True, "message": f"用户 {username} 及其所有数据已删除"}
 
 
 @router.post("/create-admin", response_model=SuccessResponse, summary="创建管理员账号")

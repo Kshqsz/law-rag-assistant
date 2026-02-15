@@ -20,6 +20,44 @@ from law_ai.callback import OutCallbackHandler
 from law_ai.logger import app_logger
 
 
+def estimate_tokens(text: str) -> int:
+    """估算文本的 token 数量（中文约 1.5 token/字，英文约 0.75 token/词）"""
+    if not text:
+        return 0
+    # 简单估算：中文字符 * 1.5 + 英文单词 * 1
+    import re
+    chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', text))
+    ascii_chars = len(re.findall(r'[a-zA-Z0-9]+', text))
+    return int(chinese_chars * 1.5 + ascii_chars * 1.3 + len(text) * 0.1)
+
+
+def save_token_usage(user_id: int, conversation_id: int, prompt_text: str, completion_text: str):
+    """保存 token 使用记录到数据库"""
+    try:
+        from backend.database import SessionLocal, TokenUsage
+        prompt_tokens = estimate_tokens(prompt_text)
+        completion_tokens = estimate_tokens(completion_text)
+        model_name = os.getenv("MODEL_NAME", "qwen-plus")
+        
+        db = SessionLocal()
+        try:
+            usage = TokenUsage(
+                user_id=user_id,
+                conversation_id=conversation_id,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=prompt_tokens + completion_tokens,
+                model_name=model_name
+            )
+            db.add(usage)
+            db.commit()
+            app_logger.info(f"📊 Token 用量: prompt={prompt_tokens}, completion={completion_tokens}, total={prompt_tokens + completion_tokens}")
+        finally:
+            db.close()
+    except Exception as e:
+        app_logger.warning(f"保存 token 用量失败: {e}")
+
+
 def print_separator(title: str = ""):
     """打印分隔符"""
     if title:
@@ -294,6 +332,47 @@ class LawQAService:
         except Exception as e:
             app_logger.error(f"❌ 流式问答服务错误: {e}")
             yield f"\n\n抱歉，处理您的问题时出现错误：{str(e)}"
+
+    async def generate_title(self, question: str, answer: str) -> str:
+        """根据用户问题和AI回答自动生成对话标题
+        
+        Args:
+            question: 用户问题
+            answer: AI回答
+            
+        Returns:
+            生成的对话标题（10字以内）
+        """
+        try:
+            from law_ai.utils import get_model
+            model = get_model(streaming=False)
+            
+            prompt_text = (
+                "请根据以下用户问题和AI回答，生成一个简短的对话标题。\n"
+                "要求：\n"
+                "1. 标题不超过15个字\n"
+                "2. 概括对话的核心主题\n"
+                "3. 直接输出标题文本，不要加引号或其他标点\n\n"
+                f"用户问题：{question[:200]}\n"
+                f"AI回答：{answer[:300]}\n\n"
+                "对话标题："
+            )
+            
+            from langchain_core.messages import HumanMessage
+            result = await asyncio.to_thread(
+                model.invoke, [HumanMessage(content=prompt_text)]
+            )
+            
+            title = result.content.strip().strip('"\'""''')
+            # 确保标题不会太长
+            if len(title) > 20:
+                title = title[:20] + "..."
+            
+            app_logger.info(f"✅ 自动生成对话标题: {title}")
+            return title
+        except Exception as e:
+            app_logger.warning(f"生成标题失败: {e}，使用默认标题")
+            return question[:20] + ("..." if len(question) > 20 else "")
 
 
 # 全局服务实例

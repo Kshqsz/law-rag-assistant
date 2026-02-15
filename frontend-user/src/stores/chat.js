@@ -8,7 +8,11 @@ export const useChatStore = defineStore('chat', {
     currentConversationId: null,
     messages: [],
     isLoading: false,
-    isStreaming: false
+    isStreaming: false,
+    conversationPage: 1,
+    conversationTotal: 0,
+    conversationPageSize: 20,
+    hasMoreConversations: true
   }),
   
   getters: {
@@ -20,10 +24,27 @@ export const useChatStore = defineStore('chat', {
   actions: {
     async fetchConversations() {
       try {
-        const res = await api.getConversations()
+        this.conversationPage = 1
+        const res = await api.getConversations(1, this.conversationPageSize)
         this.conversations = res.conversations || []
+        this.conversationTotal = res.total || 0
+        this.hasMoreConversations = this.conversations.length < this.conversationTotal
       } catch (error) {
         console.error('获取对话列表失败:', error)
+      }
+    },
+    
+    async loadMoreConversations() {
+      if (!this.hasMoreConversations) return
+      try {
+        this.conversationPage++
+        const res = await api.getConversations(this.conversationPage, this.conversationPageSize)
+        const moreConvs = res.conversations || []
+        this.conversations.push(...moreConvs)
+        this.hasMoreConversations = this.conversations.length < (res.total || 0)
+      } catch (error) {
+        console.error('加载更多对话失败:', error)
+        this.conversationPage--
       }
     },
     
@@ -63,6 +84,7 @@ export const useChatStore = defineStore('chat', {
         let fullContent = ''
         let lawContext = ''
         let webContext = ''
+        let messageId = null
         
         // 如果上传了文档但问题太宽泛，增强问题描述
         let enhancedQuestion = question
@@ -99,8 +121,16 @@ export const useChatStore = defineStore('chat', {
               this.currentConversationId = chunk.conversation_id
               await this.fetchConversations()
             }
+            // 如果返回了新标题，更新对话列表中的标题
+            if (chunk.new_title && this.currentConversationId) {
+              const conv = this.conversations.find(c => c.id === this.currentConversationId)
+              if (conv) {
+                conv.title = chunk.new_title
+              }
+            }
             lawContext = chunk.law_context || ''
             webContext = chunk.web_context || ''
+            messageId = chunk.message_id || null
           } else if (chunk.error) {
             throw new Error(chunk.error)
           }
@@ -112,6 +142,8 @@ export const useChatStore = defineStore('chat', {
           content: fullContent,
           law_context: lawContext,
           web_results: webContext,
+          message_id: messageId,
+          feedback: 0,
           timestamp: new Date().toISOString(),
           isStreaming: false
         }
@@ -163,6 +195,8 @@ export const useChatStore = defineStore('chat', {
             content: msg.content,
             law_context: msg.law_context || '',
             web_results: msg.web_context || '', // 注意：后端返回 web_context，前端使用 web_results
+            message_id: msg.id || null,
+            feedback: msg.feedback || 0,
             timestamp: msg.created_at,
             isStreaming: false
           }))

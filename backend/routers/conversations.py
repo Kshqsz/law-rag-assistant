@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from ..database import get_db, Conversation, Message, User
+from ..database import get_db, Conversation, Message, User, Feedback
 from ..schemas import (
     ConversationCreate, ConversationUpdate, ConversationResponse,
     ConversationListResponse, MessageResponse, MessageListResponse,
@@ -20,15 +20,25 @@ router = APIRouter(prefix="/conversations", tags=["对话管理"])
 
 @router.get("", response_model=ConversationListResponse, summary="获取对话列表")
 async def list_conversations(
+    page: int = 1,
+    page_size: int = 20,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """获取当前用户的所有对话列表，按更新时间倒序排列"""
-    conversations = db.query(Conversation).filter(
+    """获取当前用户的对话列表，按更新时间倒序排列，支持分页"""
+    query = db.query(Conversation).filter(
         Conversation.user_id == current_user.id
-    ).order_by(desc(Conversation.updated_at)).all()
+    ).order_by(desc(Conversation.updated_at))
     
-    return {"conversations": conversations}
+    total = query.count()
+    conversations = query.offset((page - 1) * page_size).limit(page_size).all()
+    
+    return {
+        "conversations": conversations,
+        "total": total,
+        "page": page,
+        "page_size": page_size
+    }
 
 
 @router.post("", response_model=ConversationResponse, summary="创建新对话")
@@ -143,7 +153,29 @@ async def list_messages(
         Message.conversation_id == conversation_id
     ).order_by(Message.created_at).all()
     
-    return {"messages": messages}
+    # 查询当前用户对这些消息的反馈
+    message_ids = [m.id for m in messages]
+    feedbacks = db.query(Feedback).filter(
+        Feedback.user_id == current_user.id,
+        Feedback.message_id.in_(message_ids)
+    ).all() if message_ids else []
+    feedback_map = {f.message_id: f.rating for f in feedbacks}
+    
+    # 构建响应，附带反馈信息
+    result = []
+    for msg in messages:
+        msg_dict = {
+            "id": msg.id,
+            "role": msg.role,
+            "content": msg.content,
+            "law_context": msg.law_context,
+            "web_context": msg.web_context,
+            "created_at": msg.created_at,
+            "feedback": feedback_map.get(msg.id, 0)
+        }
+        result.append(msg_dict)
+    
+    return {"messages": result}
 
 
 @router.delete("/{conversation_id}/messages", response_model=SuccessResponse, summary="清空对话消息")

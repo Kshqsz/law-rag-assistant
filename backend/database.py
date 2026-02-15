@@ -116,6 +116,36 @@ class QuestionLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class TokenUsage(Base):
+    """Token 使用记录表"""
+    __tablename__ = "token_usages"
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=True)
+    prompt_tokens = Column(Integer, default=0)       # 输入 token 数
+    completion_tokens = Column(Integer, default=0)    # 输出 token 数
+    total_tokens = Column(Integer, default=0)         # 总 token 数
+    model_name = Column(String(100), nullable=True)   # 使用的模型名
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Feedback(Base):
+    """用户反馈表（👍👎评价）"""
+    __tablename__ = "feedbacks"
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
+    rating = Column(Integer, nullable=False)  # 1=👍好评, -1=👎差评
+    comment = Column(Text, nullable=True)  # 可选的文字反馈
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # 关联
+    user = relationship("User")
+    message = relationship("Message")
+
+
 def init_db():
     """初始化数据库，创建所有表"""
     Base.metadata.create_all(bind=engine)

@@ -6,6 +6,10 @@
         <img src="/image/logo/logo.png" class="logo-icon" alt="法律AI助手" />
         <span class="logo-text">管理后台</span>
       </div>
+      <div class="header-center">
+        <router-link to="/dashboard" class="nav-link">数据统计</router-link>
+        <router-link to="/users" class="nav-link">用户管理</router-link>
+      </div>
       <div class="header-right">
         <span class="admin-name">{{ adminStore.username }}</span>
         <el-button type="danger" plain size="small" @click="handleLogout">
@@ -59,6 +63,20 @@
                 <span class="stat-label">今日新增用户</span>
               </div>
             </div>
+            <div class="stat-card">
+              <div class="stat-icon feedback">👍</div>
+              <div class="stat-info">
+                <span class="stat-value">{{ stats.satisfaction_rate }}%</span>
+                <span class="stat-label">回答满意度</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon tokens">🔤</div>
+              <div class="stat-info">
+                <span class="stat-value">{{ formatTokens(stats.total_tokens) }}</span>
+                <span class="stat-label">Token 总消耗</span>
+              </div>
+            </div>
           </div>
         </section>
         
@@ -84,9 +102,54 @@
           </div>
         </section>
         
-        <!-- 统计图表 -->
+        <!-- Token 使用趋势 -->
+        <section class="section">
+          <h2 class="section-title">
+            <el-icon><Coin /></el-icon>
+            Token 使用趋势（近30天）
+          </h2>
+          <div class="token-summary">
+            <div class="token-item">
+              <span class="token-count">{{ formatTokens(stats.total_tokens) }}</span>
+              <span class="token-label">累计消耗</span>
+            </div>
+            <div class="token-item today">
+              <span class="token-count">{{ formatTokens(stats.today_tokens) }}</span>
+              <span class="token-label">今日消耗</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div ref="tokenUsageChart" class="chart"></div>
+          </div>
+        </section>
+        
+        <!-- 满意度统计（整行） -->
+        <section class="section">
+          <h2 class="section-title">
+            <el-icon><Star /></el-icon>
+            用户满意度统计
+          </h2>
+          <div class="satisfaction-summary">
+            <div class="satisfaction-item positive">
+              <span class="satisfaction-count">{{ stats.positive_feedbacks }}</span>
+              <span class="satisfaction-label">👍 好评</span>
+            </div>
+            <div class="satisfaction-item negative">
+              <span class="satisfaction-count">{{ stats.negative_feedbacks }}</span>
+              <span class="satisfaction-label">👎 差评</span>
+            </div>
+            <div class="satisfaction-item total">
+              <span class="satisfaction-count">{{ stats.total_feedbacks }}</span>
+              <span class="satisfaction-label">总反馈</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div ref="feedbackChart" class="chart"></div>
+          </div>
+        </section>
+        
+        <!-- 高频问题 + 知识库分类（共一行） -->
         <div class="charts-row">
-          <!-- 高频问题 -->
           <section class="section half">
             <h2 class="section-title">
               <el-icon><QuestionFilled /></el-icon>
@@ -97,7 +160,6 @@
             </div>
           </section>
           
-          <!-- 知识库分类 -->
           <section class="section half">
             <h2 class="section-title">
               <el-icon><PieChart /></el-icon>
@@ -135,8 +197,10 @@ const stats = ref(null)
 
 const userGrowthChart = ref(null)
 const messageGrowthChart = ref(null)
+const feedbackChart = ref(null)
 const topQuestionsChart = ref(null)
 const categoryChart = ref(null)
+const tokenUsageChart = ref(null)
 
 const todayGrowth = computed(() => {
   const growth = stats.value?.user_growth || []
@@ -145,6 +209,13 @@ const todayGrowth = computed(() => {
   }
   return 0
 })
+
+const formatTokens = (num) => {
+  if (!num) return '0'
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
+  return num.toString()
+}
 
 onMounted(async () => {
   console.log('AdminDashboard mounted')
@@ -190,8 +261,10 @@ const initCharts = () => {
   
   initUserGrowthChart()
   initMessageGrowthChart()
+  initFeedbackChart()
   initTopQuestionsChart()
   initCategoryChart()
+  initTokenUsageChart()
 }
 
 const initUserGrowthChart = () => {
@@ -313,6 +386,78 @@ const initMessageGrowthChart = () => {
         ])
       }
     }],
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#2a2a2a',
+      borderColor: '#3f3f3f',
+      textStyle: { color: '#ececec' }
+    }
+  })
+  
+  window.addEventListener('resize', () => chart.resize())
+}
+
+const initFeedbackChart = () => {
+  if (!feedbackChart.value) return
+  
+  const chart = echarts.init(feedbackChart.value)
+  const data = stats.value?.feedback_trend || []
+  
+  if (data.length === 0) {
+    chart.setOption({
+      backgroundColor: 'transparent',
+      title: {
+        text: '暂无反馈数据',
+        left: 'center',
+        top: 'center',
+        textStyle: { color: '#8e8e8e', fontSize: 14 }
+      }
+    })
+    return
+  }
+  
+  chart.setOption({
+    backgroundColor: 'transparent',
+    grid: {
+      left: '3%', right: '4%', bottom: '3%', top: '10%',
+      containLabel: true
+    },
+    legend: {
+      data: ['好评', '差评'],
+      textStyle: { color: '#8e8e8e' },
+      top: 0
+    },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.date.slice(5)),
+      axisLine: { lineStyle: { color: '#3f3f3f' } },
+      axisLabel: { color: '#8e8e8e', fontSize: 11 }
+    },
+    yAxis: {
+      type: 'value',
+      minInterval: 1,
+      axisLine: { lineStyle: { color: '#3f3f3f' } },
+      axisLabel: { color: '#8e8e8e' },
+      splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
+    },
+    series: [
+      {
+        name: '好评',
+        type: 'bar',
+        stack: 'total',
+        data: data.map(d => d.positive),
+        itemStyle: { color: '#10a37f', borderRadius: [4, 4, 0, 0] },
+        barMaxWidth: 20
+      },
+      {
+        name: '差评',
+        type: 'bar',
+        stack: 'total',
+        data: data.map(d => d.negative),
+        itemStyle: { color: '#ff6b6b', borderRadius: [4, 4, 0, 0] },
+        barMaxWidth: 20
+      }
+    ],
     tooltip: {
       trigger: 'axis',
       backgroundColor: '#2a2a2a',
@@ -463,6 +608,87 @@ const initCategoryChart = () => {
   window.addEventListener('resize', () => chart.resize())
 }
 
+const initTokenUsageChart = () => {
+  if (!tokenUsageChart.value) return
+  
+  const chart = echarts.init(tokenUsageChart.value)
+  const data = stats.value?.token_trend || []
+  
+  if (data.length === 0) {
+    chart.setOption({
+      backgroundColor: 'transparent',
+      title: {
+        text: '暂无 Token 使用数据',
+        left: 'center',
+        top: 'center',
+        textStyle: { color: '#8e8e8e', fontSize: 14 }
+      }
+    })
+    return
+  }
+  
+  chart.setOption({
+    backgroundColor: 'transparent',
+    grid: {
+      left: '3%', right: '4%', bottom: '3%', top: '15%',
+      containLabel: true
+    },
+    legend: {
+      data: ['Prompt Tokens', 'Completion Tokens'],
+      textStyle: { color: '#8e8e8e' },
+      top: 0
+    },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.date.slice(5)),
+      axisLine: { lineStyle: { color: '#3f3f3f' } },
+      axisLabel: { color: '#8e8e8e', fontSize: 11 }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: '#3f3f3f' } },
+      axisLabel: { color: '#8e8e8e' },
+      splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
+    },
+    series: [
+      {
+        name: 'Prompt Tokens',
+        type: 'bar',
+        stack: 'tokens',
+        data: data.map(d => d.prompt_tokens),
+        itemStyle: { color: '#3b82f6', borderRadius: [0, 0, 0, 0] },
+        barMaxWidth: 24
+      },
+      {
+        name: 'Completion Tokens',
+        type: 'bar',
+        stack: 'tokens',
+        data: data.map(d => d.completion_tokens),
+        itemStyle: { color: '#10a37f', borderRadius: [4, 4, 0, 0] },
+        barMaxWidth: 24
+      }
+    ],
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#2a2a2a',
+      borderColor: '#3f3f3f',
+      textStyle: { color: '#ececec' },
+      formatter: function(params) {
+        let total = 0
+        let html = params[0].axisValue + '<br/>'
+        params.forEach(p => {
+          total += p.value
+          html += p.marker + ' ' + p.seriesName + ': ' + p.value.toLocaleString() + '<br/>'
+        })
+        html += '<b>合计: ' + total.toLocaleString() + '</b>'
+        return html
+      }
+    }
+  })
+  
+  window.addEventListener('resize', () => chart.resize())
+}
+
 const handleLogout = async () => {
   try {
     await ElMessageBox.confirm('确定要退出登录吗？', '确认退出', {
@@ -528,6 +754,31 @@ const handleLogout = async () => {
       font-size: 0.95rem;
     }
   }
+  
+  .header-center {
+    display: flex;
+    gap: 8px;
+    
+    .nav-link {
+      padding: 8px 20px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      
+      &:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+      
+      &.router-link-active {
+        background: rgba(16, 163, 127, 0.15);
+        color: #10a37f;
+        font-weight: 600;
+      }
+    }
+  }
 }
 
 .dashboard-content {
@@ -575,7 +826,7 @@ const handleLogout = async () => {
 
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
@@ -608,6 +859,8 @@ const handleLogout = async () => {
     &.conversations { background: rgba(52, 152, 219, 0.15); }
     &.messages { background: rgba(155, 89, 182, 0.15); }
     &.today { background: rgba(243, 156, 18, 0.15); }
+    &.feedback { background: rgba(16, 163, 127, 0.15); }
+    &.tokens { background: rgba(59, 130, 246, 0.15); }
   }
   
   .stat-info {
@@ -625,6 +878,69 @@ const handleLogout = async () => {
       color: var(--text-secondary);
       margin-top: 4px;
     }
+  }
+}
+
+.satisfaction-summary {
+  display: flex;
+  gap: 20px;
+  margin-top: 12px;
+  
+  .satisfaction-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: var(--bg-primary);
+    flex: 1;
+    
+    .satisfaction-count {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .satisfaction-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    
+    &.positive .satisfaction-count { color: #10a37f; }
+    &.negative .satisfaction-count { color: #ff6b6b; }
+  }
+}
+
+.token-summary {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  
+  .token-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    flex: 1;
+    max-width: 200px;
+    
+    .token-count {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #3b82f6;
+    }
+    
+    .token-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    
+    &.today .token-count { color: #f59e0b; }
   }
 }
 
@@ -647,7 +963,7 @@ const handleLogout = async () => {
 
 @media (max-width: 1200px) {
   .stats-cards {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
   }
   
   .charts-row {

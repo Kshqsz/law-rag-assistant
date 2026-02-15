@@ -47,14 +47,25 @@ async def add_favorite(
 
 @router.get("", response_model=FavoriteListResponse, summary="获取收藏列表")
 async def list_favorites(
+    page: int = 1,
+    page_size: int = 20,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """获取用户的收藏列表"""
-    favorites = db.query(Favorite).filter(
+    """获取用户的收藏列表，支持分页"""
+    query = db.query(Favorite).filter(
         Favorite.user_id == current_user.id
-    ).order_by(Favorite.created_at.desc()).all()
-    return {"favorites": favorites}
+    ).order_by(Favorite.created_at.desc())
+    
+    total = query.count()
+    favorites = query.offset((page - 1) * page_size).limit(page_size).all()
+    
+    return {
+        "favorites": favorites,
+        "total": total,
+        "page": page,
+        "page_size": page_size
+    }
 
 
 @router.delete("/{favorite_id}", response_model=SuccessResponse, summary="删除收藏")
