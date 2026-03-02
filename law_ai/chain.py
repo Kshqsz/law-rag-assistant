@@ -300,28 +300,12 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
             chain_logger.info(f"📎 检测到上传文档: {len(uploaded_document)} 字符")
             law_context = f"【用户上传的文档内容】\n{uploaded_document}\n\n{'=' * 60}\n\n【知识库检索结果】\n{law_context}"
         
-        chain_logger.info("=" * 60)
-        chain_logger.info("📝 发送给大模型的 Prompt:")
-        chain_logger.info(f"  用户问题: {question}")
+        # ── 选择 Prompt 并构建输入 ──────────────────────────────────────────
         if history:
-            chain_logger.info(f"  历史对话: {len(history)} 条消息")
-        chain_logger.info(f"  法律上下文 ({len(law_context)} 字符):")
-        # 只显示前 500 字符
-        preview = law_context[:500].replace('\n', '\n    ')
-        chain_logger.info(f"    {preview}...")
-        if web_context:
-            chain_logger.info(f"  网页上下文 ({len(web_context)} 字符)")
-        chain_logger.info("=" * 60)
-        chain_logger.info("🤖 调用大模型生成答案...")
-        
-        # 根据是否有历史消息选择不同的 prompt
-        if history:
-            # 格式化历史消息
             history_text = ""
             for msg in history:
                 role_name = "用户" if msg["role"] == "user" else "律师"
                 history_text += f"{role_name}: {msg['content']}\n\n"
-            
             prompt = LAW_PROMPT_WITH_HISTORY
             prompt_input = {
                 "law_context": law_context,
@@ -336,7 +320,40 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
                 "web_context": web_context,
                 "question": question
             }
-        
+
+        # ── 控制台完整输出 ──────────────────────────────────────────────────
+        SEP = "=" * 70
+        chain_logger.info(f"\n{SEP}")
+        chain_logger.info(f"【① 用户问题】")
+        chain_logger.info(f"  {question}")
+
+        if history:
+            chain_logger.info(f"\n【② 历史对话】({len(history)} 条)")
+            chain_logger.info(f"  {prompt_input['history'][:300]}...")
+
+        chain_logger.info(f"\n【③ 法律上下文】({len(law_context)} 字符)")
+        chain_logger.info(SEP)
+        for line in law_context.splitlines():
+            chain_logger.info(line)
+
+        chain_logger.info(f"\n【④ 网页上下文】({len(web_context)} 字符)")
+        chain_logger.info(SEP)
+        if web_context:
+            for line in web_context.splitlines():
+                chain_logger.info(line)
+        else:
+            chain_logger.info("(本次无网页内容)")
+
+        # 填充完整 Prompt 并打印
+        filled_prompt = prompt.format(**prompt_input)
+        chain_logger.info(f"\n{SEP}")
+        chain_logger.info("【⑤ 完整 Prompt — 大模型实际收到的内容】")
+        chain_logger.info(SEP)
+        for line in filled_prompt.splitlines():
+            chain_logger.info(line)
+        chain_logger.info(SEP)
+
+        chain_logger.info("\n🤖 开始调用大模型生成答案...")
         answer_chain = prompt | get_model(callbacks=callbacks) | StrOutputParser()
         return answer_chain.invoke(prompt_input)
 

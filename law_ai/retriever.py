@@ -162,12 +162,26 @@ class LineListOutputParser(PydanticOutputParser):
         return LineList(lines=lines)
 
 
+class LoggingMultiQueryRetriever(MultiQueryRetriever):
+    """打印大模型重写后的所有检索子问题"""
+
+    def generate_queries(self, question: str, run_manager=None) -> List[str]:
+        queries = super().generate_queries(question, run_manager)
+        retriever_logger.info("=" * 60)
+        retriever_logger.info(f"🔀 多查询重写 | 原始问题: {question}")
+        retriever_logger.info(f"🔀 共生成 {len(queries)} 个检索子问题:")
+        for i, q in enumerate(queries, 1):
+            retriever_logger.info(f"  [{i}] {q}")
+        retriever_logger.info("=" * 60)
+        return queries
+
+
 def get_multi_query_law_retiever(retriever: BaseRetriever, model: BaseModel) -> BaseRetriever:
     output_parser = LineListOutputParser()
 
     llm_chain = LLMChain(llm=model, prompt=MULTI_QUERY_PROMPT_TEMPLATE, output_parser=output_parser)
 
-    retriever = MultiQueryRetriever(
+    retriever = LoggingMultiQueryRetriever(
         retriever=retriever, llm_chain=llm_chain, parser_key="lines"
     )
 
