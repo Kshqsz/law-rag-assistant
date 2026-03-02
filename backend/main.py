@@ -4,11 +4,12 @@ FastAPI 主应用入口
 """
 import sys
 import os
+import time
 
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -23,6 +24,7 @@ from backend.routers.documents import router as documents_router
 from backend.routers.favorites import router as favorites_router
 from backend.routers.admin import router as admin_router
 from backend.routers.feedback import router as feedback_router
+from law_ai.logger import app_logger
 
 # 创建 FastAPI 应用
 app = FastAPI(
@@ -50,6 +52,27 @@ app = FastAPI(
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json"
 )
+
+# ── 请求日志中间件 ────────────────────────────────────────────────────────────
+# 跳过高频、无实质内容的路径，避免日志噪音
+_SKIP_LOG_PATHS = {"/api/health", "/", "/api/docs", "/api/redoc", "/api/openapi.json"}
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    if request.url.path not in _SKIP_LOG_PATHS:
+        start = time.time()
+        client_ip = request.client.host if request.client else "unknown"
+        app_logger.info(
+            f"➡  {request.method} {request.url.path} | IP={client_ip}"
+        )
+        response = await call_next(request)
+        elapsed = (time.time() - start) * 1000
+        app_logger.info(
+            f"⬅  {request.method} {request.url.path} | "
+            f"status={response.status_code} | {elapsed:.0f}ms"
+        )
+        return response
+    return await call_next(request)
 
 # 配置 CORS（允许 Streamlit 前端访问）
 app.add_middleware(

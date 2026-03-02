@@ -6,38 +6,32 @@
 - ColoredFormatter: 自定义日志格式化器，为不同级别的日志添加彩色输出
   DEBUG (青色) | INFO (绿色) | WARNING (黄色) | ERROR (红色) | CRITICAL (紫色)
   
-- setup_logger(name, level): 创建并配置一个彩色日志记录器
-  支持自定义日志名称和级别
-  输出到控制台，防止重复添加处理器
+- setup_logger(name, level): 创建并配置一个日志记录器
+  同时输出到控制台（彩色）和 logs/app.log 文件（纯文本，按天滚动）
+  日志文件保留最近 7 天
 
 使用示例：
     from law_ai.logger import setup_logger
     import logging
     
-    # 创建不同的日志记录器
-    app_logger = setup_logger("AppLogger", level=logging.INFO)
-    chain_logger = setup_logger("ChainLogger", level=logging.DEBUG)
-    
-    # 输出不同级别的日志
-    app_logger.debug("这是 DEBUG 信息 (不会显示，因为日志级别是 INFO)")
-    app_logger.info("✓ 这是 INFO 信息 (绿色)")
-    app_logger.warning("⚠ 这是 WARNING 信息 (黄色)")
-    app_logger.error("✗ 这是 ERROR 信息 (红色)")
-    
-    chain_logger.debug("🔧 这是 DEBUG 信息 (青色，因为日志级别是 DEBUG)")
-    
-    # 输出示例（在终端中显示彩色）:
-    # [INFO] [AppLogger] ✓ 这是 INFO 信息 (绿色)
-    # [WARNING] [AppLogger] ⚠ 这是 WARNING 信息 (黄色)
-    # [ERROR] [AppLogger] ✗ 这是 ERROR 信息 (红色)
-    # [DEBUG] [ChainLogger] 🔧 这是 DEBUG 信息 (青色，因为日志级别是 DEBUG)
+    app_logger = setup_logger("App", level=logging.INFO)
+    app_logger.info("✓ 服务启动")
+    app_logger.warning("⚠ 检测到异常")
+    app_logger.error("✗ 错误信息")
 """
 import logging
+import os
 import sys
-from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
+
+# ── 日志目录 ─────────────────────────────────────────────────────────────────
+_LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
+os.makedirs(_LOG_DIR, exist_ok=True)
+_LOG_FILE = os.path.join(_LOG_DIR, "app.log")
+
 
 class ColoredFormatter(logging.Formatter):
-    """彩色日志格式化器"""
+    """彩色日志格式化器（用于控制台）"""
     
     COLORS = {
         'DEBUG': '\033[36m',    # 青色
@@ -51,34 +45,51 @@ class ColoredFormatter(logging.Formatter):
     def format(self, record):
         log_level = record.levelname
         color = self.COLORS.get(log_level, '')
-        
-        # 添加时间戳和颜色
         record.levelname = f"{color}[{log_level}]{self.RESET}"
-        
+        formatter = logging.Formatter('%(levelname)s [%(name)s] %(message)s')
+        return formatter.format(record)
+
+
+class PlainFormatter(logging.Formatter):
+    """纯文本日志格式化器（用于文件）"""
+    
+    def format(self, record):
         formatter = logging.Formatter(
-            '%(levelname)s [%(name)s] %(message)s'
+            '%(asctime)s [%(levelname)s] [%(name)s] %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
         return formatter.format(record)
 
 
 def setup_logger(name: str, level=logging.INFO) -> logging.Logger:
-    """设置日志记录器"""
+    """设置日志记录器，同时输出到控制台和 logs/app.log"""
     logger = logging.getLogger(name)
     logger.setLevel(level)
     
-    # 移除已有的处理器，避免重复
-    logger.handlers = []
+    # 避免重复添加处理器
+    if logger.handlers:
+        return logger
     
-    # 添加控制台处理器
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(level)
+    # ── 控制台处理器（彩色）──────────────────────────────────
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    console_handler.setFormatter(ColoredFormatter())
+    logger.addHandler(console_handler)
     
-    formatter = ColoredFormatter()
-    handler.setFormatter(formatter)
+    # ── 文件处理器（按天滚动，保留 7 天）────────────────────
+    file_handler = TimedRotatingFileHandler(
+        _LOG_FILE,
+        when='midnight',     # 每天零点滚动
+        interval=1,
+        backupCount=7,       # 保留最近 7 天
+        encoding='utf-8'
+    )
+    file_handler.suffix = "%Y-%m-%d"
+    file_handler.setLevel(level)
+    file_handler.setFormatter(PlainFormatter())
+    logger.addHandler(file_handler)
     
-    logger.addHandler(handler)
     logger.propagate = False
-    
     return logger
 
 
