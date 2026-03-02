@@ -21,6 +21,12 @@ class UserLogin(BaseModel):
     password: str = Field(..., description="密码")
 
 
+class PasswordChange(BaseModel):
+    """修改密码请求"""
+    old_password: str = Field(..., description="当前密码")
+    new_password: str = Field(..., min_length=6, max_length=100, description="新密码（至少6位）")
+
+
 class UserResponse(BaseModel):
     """用户信息响应"""
     id: int

@@ -96,6 +96,9 @@ export default {
     instance.post('/auth/register', { username, password }, {
       skipErrorMessage: true // 注册错误由调用方处理
     }),
+
+  changePassword: (oldPassword, newPassword) =>
+    instance.put('/auth/password', { old_password: oldPassword, new_password: newPassword }),
   
   getCurrentUser: () => 
     instance.get('/auth/me', {

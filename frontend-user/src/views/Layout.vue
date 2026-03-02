@@ -37,9 +37,19 @@
           <!-- 历史对话 -->
           <div class="nav-section">
             <span class="nav-label">历史对话</span>
+            <!-- 搜索框 -->
+            <el-input
+              v-model="searchQuery"
+              placeholder="搜索对话..."
+              clearable
+              size="small"
+              class="conv-search-input"
+            >
+              <template #prefix><el-icon><Search /></el-icon></template>
+            </el-input>
             <div class="conversation-list">
               <div 
-                v-for="conv in chatStore.conversations" 
+                v-for="conv in filteredConversations" 
                 :key="conv.id"
                 class="conversation-item"
                 :class="{ active: chatStore.currentConversationId === conv.id }"
@@ -69,8 +79,8 @@
                   </template>
                 </el-dropdown>
               </div>
-              <div v-if="chatStore.conversations.length === 0" class="no-conversations">
-                暂无对话
+              <div v-if="filteredConversations.length === 0" class="no-conversations">
+                {{ searchQuery ? '未找到匹配对话' : '暂无对话' }}
               </div>
               <div 
                 v-if="chatStore.hasMoreConversations" 
@@ -91,10 +101,34 @@
             </el-avatar>
             <span class="username">{{ userStore.username }}</span>
           </div>
-          <el-button class="logout-btn" link @click="handleLogout" title="退出登录">
-            <el-icon><SwitchButton /></el-icon>
-          </el-button>
+          <div class="user-actions">
+            <el-button class="action-btn" link @click="showPasswordDialog = true" title="修改密码">
+              <el-icon><Setting /></el-icon>
+            </el-button>
+            <el-button class="action-btn logout-btn" link @click="handleLogout" title="退出登录">
+              <el-icon><SwitchButton /></el-icon>
+            </el-button>
+          </div>
         </div>
+
+        <!-- 修改密码对话框 -->
+        <el-dialog v-model="showPasswordDialog" title="修改密码" width="360px" :close-on-click-modal="false">
+          <el-form :model="passwordForm" :rules="passwordRules" ref="passwordFormRef" label-width="90px">
+            <el-form-item label="当前密码" prop="oldPassword">
+              <el-input v-model="passwordForm.oldPassword" type="password" show-password placeholder="请输入当前密码" />
+            </el-form-item>
+            <el-form-item label="新密码" prop="newPassword">
+              <el-input v-model="passwordForm.newPassword" type="password" show-password placeholder="至少6位" />
+            </el-form-item>
+            <el-form-item label="确认密码" prop="confirmPassword">
+              <el-input v-model="passwordForm.confirmPassword" type="password" show-password placeholder="再次输入新密码" />
+            </el-form-item>
+          </el-form>
+          <template #footer>
+            <el-button @click="showPasswordDialog = false">取消</el-button>
+            <el-button type="primary" :loading="passwordLoading" @click="handleChangePassword">确认修改</el-button>
+          </template>
+        </el-dialog>
       </div>
       
       <!-- 折叠按钮 -->
@@ -133,7 +167,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useChatStore } from '@/stores/chat'
@@ -148,6 +182,55 @@ const chatStore = useChatStore()
 
 const sidebarCollapsed = ref(false)
 const isDark = ref(false)
+
+// 对话搜索
+const searchQuery = ref('')
+const filteredConversations = computed(() => {
+  if (!searchQuery.value.trim()) return chatStore.conversations
+  const q = searchQuery.value.trim().toLowerCase()
+  return chatStore.conversations.filter(c => c.title.toLowerCase().includes(q))
+})
+
+// 修改密码
+const showPasswordDialog = ref(false)
+const passwordLoading = ref(false)
+const passwordFormRef = ref(null)
+const passwordForm = ref({ oldPassword: '', newPassword: '', confirmPassword: '' })
+const passwordRules = {
+  oldPassword: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
+  newPassword: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, message: '密码至少6位', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请再次输入新密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== passwordForm.value.newPassword) callback(new Error('两次密码不一致'))
+        else callback()
+      },
+      trigger: 'blur'
+    }
+  ]
+}
+
+const handleChangePassword = async () => {
+  if (!passwordFormRef.value) return
+  await passwordFormRef.value.validate(async (valid) => {
+    if (!valid) return
+    passwordLoading.value = true
+    try {
+      await api.changePassword(passwordForm.value.oldPassword, passwordForm.value.newPassword)
+      ElMessage.success('密码修改成功')
+      showPasswordDialog.value = false
+      passwordForm.value = { oldPassword: '', newPassword: '', confirmPassword: '' }
+    } catch (err) {
+      ElMessage.error(err.message || '密码修改失败')
+    } finally {
+      passwordLoading.value = false
+    }
+  })
+}
 
 // 初始化主题
 onMounted(() => {
@@ -447,6 +530,31 @@ const handleLogout = async () => {
   }
 }
 
+.conv-search-input {
+  margin-bottom: 8px;
+
+  :deep(.el-input__wrapper) {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+    border-radius: 8px;
+    box-shadow: none;
+
+    &:hover,
+    &.is-focus {
+      border-color: var(--accent-color);
+    }
+  }
+
+  :deep(.el-input__inner) {
+    color: var(--text-primary);
+    font-size: 0.85rem;
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+  }
+}
+
 .conversation-list {
   max-height: 480px;
   overflow-y: auto;
@@ -543,15 +651,25 @@ const handleLogout = async () => {
   }
 }
 
-.logout-btn {
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.action-btn {
   color: var(--text-secondary);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   padding: 6px;
   min-width: unset;
-  
+
   &:hover {
-    color: var(--danger-color);
+    color: var(--accent-color);
     background: var(--bg-hover);
+  }
+
+  &.logout-btn:hover {
+    color: var(--danger-color);
   }
 }
 

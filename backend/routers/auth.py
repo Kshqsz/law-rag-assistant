@@ -9,11 +9,12 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..schemas import (
-    UserCreate, UserResponse, UserLogin, Token, SuccessResponse
+    UserCreate, UserResponse, UserLogin, Token, SuccessResponse, PasswordChange
 )
 from ..auth import (
     authenticate_user, create_user, get_user_by_username,
-    create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
+    create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES,
+    verify_password, get_password_hash
 )
 from ..database import User
 from law_ai.logger import app_logger
@@ -111,3 +112,27 @@ async def logout(current_user: User = Depends(get_current_user)):
     """
     app_logger.info(f"🔐 用户登出 | username={current_user.username}")
     return {"success": True, "message": "登出成功"}
+
+
+@router.put("/password", response_model=SuccessResponse, summary="修改密码")
+async def change_password(
+    data: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    修改当前用户密码
+
+    - **old_password**: 当前密码
+    - **new_password**: 新密码（至少6位）
+    """
+    if not verify_password(data.old_password, current_user.hashed_password):
+        app_logger.warning(f"🔐 修改密码失败 | username={current_user.username} | 当前密码错误")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="当前密码错误"
+        )
+    current_user.hashed_password = get_password_hash(data.new_password)
+    db.commit()
+    app_logger.info(f"🔐 修改密码成功 | username={current_user.username}")
+    return {"success": True, "message": "密码修改成功"}
