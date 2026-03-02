@@ -177,8 +177,8 @@ class LawQAService:
         if has_document:
             print(f"📎 附带文档: {len(use_document_content)} 字符")
         
-        # 检查是否与法律相关
-        if not self.is_law_related(question, history):
+        # 检查是否与法律相关（上传文档时跳过此检查）
+        if not has_document and not self.is_law_related(question, history):
             print("❌ 问题与法律无关，拒绝回答")
             print_separator("处理结束")
             return (
@@ -277,8 +277,8 @@ class LawQAService:
         
         has_document = use_document_content is not None
         
-        # 检查是否与法律相关
-        if not self.is_law_related(question, history):
+        # 检查是否与法律相关（上传文档时跳过此检查）
+        if not has_document and not self.is_law_related(question, history):
             yield "不好意思，我是法律AI助手，请提问和法律有关的问题。"
             return
         

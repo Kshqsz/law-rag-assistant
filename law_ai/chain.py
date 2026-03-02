@@ -341,17 +341,43 @@ def get_law_chain(config: Any, out_callback: AsyncIteratorCallbackHandler, enabl
         return answer_chain.invoke(prompt_input)
 
     def enhance_search_with_document(x):
-        """结合文档内容增强检索问题"""
+        """有上传文档时，用大模型将用户问题+文档内容重写为精准的法律检索问题。
+        
+        用户上传文档后常常只说"帮我分析"、"怎么处理"，这类问题本身
+        无法命中法律条文。真正的法律主题在文档内容里，因此：
+        - 有文档时：让大模型结合文档内容重写为精准法律检索 query
+        - 无文档时：用用户原问题（或重写后的问题）
+        """
         search_q = x.get("search_question", x["question"])
         doc_content = x.get("uploaded_document")
         
         if doc_content:
-            # 提取文档关键信息（前300字符）
-            doc_preview = doc_content[:300]
-            # 生成增强的检索问题
-            enhanced_q = f"{search_q} 涉及内容：{doc_preview}"
-            chain_logger.info(f"📄 文档增强检索: 原问题={search_q[:50]}..., 增强后={enhanced_q[:100]}...")
-            return enhanced_q
+            doc_preview = doc_content[:300].replace('\n', ' ').strip()
+            chain_logger.info(f"📄 上传文档检索: 用户问题='{search_q}'")
+            chain_logger.info(f"📄 文档摘要: {doc_preview[:100]}...")
+            
+            # 用大模型将用户问题+文档内容重写为精准的法律检索问题
+            try:
+                rewrite_prompt = PromptTemplate(
+                    template=(
+                        "你是法律检索专家。用户上传了一份文档并提出了问题，请根据文档内容和用户问题，"
+                        "生成一个简短、精准的法律检索问题（用于在法律知识库中搜索相关条文）。\n\n"
+                        "文档内容摘要：{doc_preview}\n\n"
+                        "用户问题：{question}\n\n"
+                        "请直接输出一个简短的法律检索问题（不超过50字），不要任何解释："
+                    ),
+                    input_variables=["doc_preview", "question"]
+                )
+                rewrite_chain = rewrite_prompt | get_model() | StrOutputParser()
+                rewritten_q = rewrite_chain.invoke({
+                    "doc_preview": doc_preview,
+                    "question": search_q
+                }).strip()
+                chain_logger.info(f"📄 重写后的检索query: '{rewritten_q}'")
+                return rewritten_q
+            except Exception as e:
+                chain_logger.warning(f"📄 文档检索问题重写失败: {e}，使用文档前100字作为检索query")
+                return doc_preview[:100]
         return search_q
     
     chain = (
