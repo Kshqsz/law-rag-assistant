@@ -199,3 +199,5 @@ Thumbs.db
 uploads
 # Archive folder (deprecated files)
 _archive/
+models/
+logs/

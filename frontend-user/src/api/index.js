@@ -112,6 +112,9 @@ export default {
   deleteConversation: (conversationId) => 
     instance.delete(`/conversations/${conversationId}`),
   
+  renameConversation: (conversationId, title) =>
+    instance.put(`/conversations/${conversationId}`, { title }),
+  
   // 聊天
   chat: (question, conversationId = null, documentId = null) => 
     instance.post('/chat', { 

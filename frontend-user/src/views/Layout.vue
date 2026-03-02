@@ -53,6 +53,10 @@
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
+                      <el-dropdown-item command="rename">
+                        <el-icon><Edit /></el-icon>
+                        重命名
+                      </el-dropdown-item>
                       <el-dropdown-item command="export">
                         <el-icon><Download /></el-icon>
                         导出PDF
@@ -184,7 +188,26 @@ const selectConversation = async (conversationId) => {
 }
 
 const handleConvCommand = async (command, conversationId) => {
-  if (command === 'delete') {
+  if (command === 'rename') {
+    try {
+      const conv = chatStore.conversations.find(c => c.id === conversationId)
+      const { value } = await ElMessageBox.prompt('请输入新的对话名称', '重命名对话', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        inputValue: conv?.title || '',
+        inputValidator: (val) => val && val.trim().length > 0 ? true : '名称不能为空',
+        inputPlaceholder: '请输入对话名称'
+      })
+      if (value && value.trim()) {
+        const result = await chatStore.renameConversation(conversationId, value.trim())
+        if (result.success) {
+          ElMessage.success('对话已重命名')
+        }
+      }
+    } catch {
+      // 用户取消
+    }
+  } else if (command === 'delete') {
     try {
       await ElMessageBox.confirm('确定要删除这个对话吗？', '确认删除', {
         confirmButtonText: '删除',
@@ -425,7 +448,7 @@ const handleLogout = async () => {
 }
 
 .conversation-list {
-  max-height: 300px;
+  max-height: 480px;
   overflow-y: auto;
 }
 

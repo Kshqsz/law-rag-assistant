@@ -162,6 +162,17 @@ export const useChatStore = defineStore('chat', {
       }
     },
     
+    async renameConversation(conversationId, newTitle) {
+      try {
+        await api.renameConversation(conversationId, newTitle)
+        const conv = this.conversations.find(c => c.id === conversationId)
+        if (conv) conv.title = newTitle
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    },
+    
     async deleteConversation(conversationId) {
       try {
         await api.deleteConversation(conversationId)
