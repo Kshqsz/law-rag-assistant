@@ -221,9 +221,14 @@ const handleChangePassword = async () => {
     passwordLoading.value = true
     try {
       await api.changePassword(passwordForm.value.oldPassword, passwordForm.value.newPassword)
-      ElMessage.success('密码修改成功')
+      ElMessage.success('密码修改成功，请重新登录')
       showPasswordDialog.value = false
       passwordForm.value = { oldPassword: '', newPassword: '', confirmPassword: '' }
+      // 清除本地登录状态并跳转登录页
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      userStore.$reset ? userStore.$reset() : null
+      router.push('/login')
     } catch (err) {
       ElMessage.error(err.message || '密码修改失败')
     } finally {
