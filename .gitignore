@@ -201,3 +201,5 @@ uploads
 _archive/
 models/
 logs/
+
+*.db

@@ -149,10 +149,22 @@ def get_vectorstore(collection_name: str = "law") -> Chroma:
     return vectorstore
 
 def clear_vectorstore(collection_name: str = "law") -> None:
-    record_manager = get_record_manager(collection_name)
+    """彻底清空向量库：直接删除 Chroma collection，并清空 record manager 记录。
+    
+    注意：不能依赖 index([], cleanup='full') 来清空，因为它只删除 record manager
+    已记录的文档。若 record manager 与 Chroma 不同步（如手动删除了 SQL 文件），
+    Chroma 中的旧数据将无法被清除。
+    """
+    # 1. 直接删除整个 Chroma collection（无论 record manager 是否同步）
     vectorstore = get_vectorstore(collection_name)
+    vectorstore.delete_collection()
 
-    index([], record_manager, vectorstore, cleanup="full", source_id_key="source")
+    # 2. 清空 record manager 中该 namespace 的所有记录
+    record_manager = get_record_manager(collection_name)
+    record_manager.create_schema()
+    keys = list(record_manager.list_keys())
+    if keys:
+        record_manager.delete_keys(keys)
 
 def get_model(
         model: str = None,

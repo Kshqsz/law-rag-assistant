@@ -1,0 +1,16 @@
+{
+  "samples": 8,
+  "model_name": "qwen-plus",
+  "baseline_mode": "raw_question_only",
+  "rag_mode": "project_rag_pipeline",
+  "avg_baseline_score": 77.71,
+  "avg_rag_score": 73.33,
+  "avg_score_diff": -4.38,
+  "avg_baseline_latency_ms": 23932.69,
+  "avg_rag_latency_ms": 19721.69,
+  "avg_baseline_cost_proxy_chars": 1475.25,
+  "avg_rag_cost_proxy_chars": 701.0,
+  "rag_better_count": 4,
+  "baseline_better_count": 3,
+  "tie_count": 1
+}

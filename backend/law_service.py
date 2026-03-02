@@ -234,9 +234,14 @@ class LawQAService:
             law_context = res.get("law_context", "")
             web_context = res.get("web_context", "")
             
-            # 如果 answer 为空，从 res 获取
+            # res["answer"] 是 log_prompt_and_call_llm 同步 .invoke() 的完整返回值，永远是完整答案。
+            # 流式收集（out_callback.aiter）在线程池与事件循环的竞争条件下可能过早停止，导致截断。
+            # 策略：始终取两者中更长的一个，以保证得到完整回答。
+            res_answer = res.get("answer", "")
+            if res_answer and len(res_answer) > len(answer):
+                answer = res_answer
             if not answer:
-                answer = res.get("answer", "抱歉，无法生成回答。")
+                answer = "抱歉，无法生成回答。"
             
             # 打印完成信息
             print("\n" + "=" * 60)
