@@ -68,13 +68,6 @@ RAG 链式处理模块：构建完整的检索增强生成(RAG)管道
     # [INFO] [Chain] 🌐 开始检索网页资源...
     # [INFO] [Retriever] 🔍 开始网页搜索...
     # [INFO] [Retriever] ✓ 网页搜好的，已去掉最后一列，表格如下：
-
-| 课次 | 日期    | 主题                | 核心内容                                                     |
-| ---- | ------- | ------------------- | ------------------------------------------------------------ |
-| 1    | 1月10日 | C++程序设计入门     | 环境搭建、`cout/cin`、变量与基本类型（int/double/string/bool） |
-| 2    | 1月17日 | 条件分支 + 字符类型 | `if-else`、逻辑运算、复杂条件；`char` 与 ASCII 判断（大小写、数字等） |
-| 3    | 1月24日 | 循环入门 + 综合训练 | `for`/`while`、`break/continue`；嵌套循环初步；条件+循环综合应用（如猜数） |索成功
-    # [INFO] [Chain] 📖 共检索到 4 条资料
 """
 from typing import Any, Optional, List
 from collections import defaultdict
