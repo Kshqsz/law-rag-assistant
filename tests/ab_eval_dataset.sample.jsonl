@@ -1,6 +1,50 @@
-{"id": "LAW-001", "category": "刑法", "question": "不小心把人撞死了需要承担什么法律责任？", "is_law_related": true}
-{"id": "LAW-002", "category": "劳动法", "question": "公司拖欠工资三个月，我可以直接离职并要求补偿吗？", "is_law_related": true}
-{"id": "LAW-003", "category": "合同法", "question": "对方签了合同不履行，我该怎么维权？", "is_law_related": true}
-{"id": "LAW-004", "category": "婚姻家事", "question": "离婚时房子和孩子抚养权一般怎么判？", "is_law_related": true}
-{"id": "LAW-005", "category": "民事诉讼", "question": "借钱不还，起诉需要准备哪些材料？", "is_law_related": true}
-{"id": "LAW-006", "category": "行政法", "question": "交警认定书我不服，应该怎么申请复核？", "is_law_related": true}
+{"id": "LAW-001", "category": "刑法", "question": "不小心把人撞死了需要承担什么法律责任？", "is_law_related": true, "expected_keywords": ["过失致人死亡", "有期徒刑", "刑事责任", "交通肇事", "赔偿"], "expected_laws": ["《中华人民共和国刑法》", "《中华人民共和国道路交通安全法》"]}
+{"id": "LAW-002", "category": "劳动法", "question": "公司拖欠工资三个月，我可以直接离职并要求补偿吗？", "is_law_related": true, "expected_keywords": ["拖欠工资", "解除劳动合同", "经济补偿", "用人单位", "劳动者"], "expected_laws": ["《中华人民共和国劳动合同法》", "《中华人民共和国劳动法》"]}
+{"id": "LAW-003", "category": "合同法", "question": "对方签了合同不履行，我该怎么维权？", "is_law_related": true, "expected_keywords": ["违约责任", "继续履行", "损害赔偿", "合同解除", "违约金"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-004", "category": "婚姻家事", "question": "离婚时房子和孩子抚养权一般怎么判？", "is_law_related": true, "expected_keywords": ["夫妻共同财产", "抚养权", "子女利益", "财产分割", "抚养费"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-005", "category": "民事诉讼", "question": "借钱不还，起诉需要准备哪些材料？", "is_law_related": true, "expected_keywords": ["起诉状", "证据", "借条", "诉讼时效", "立案"], "expected_laws": ["《中华人民共和国民事诉讼法》"]}
+{"id": "LAW-006", "category": "行政法", "question": "交警认定书我不服，应该怎么申请复核？", "is_law_related": true, "expected_keywords": ["行政复议", "复核申请", "交通事故认定书", "申请期限", "公安机关"], "expected_laws": ["《中华人民共和国道路交通安全法》", "《中华人民共和国行政复议法》"]}
+{"id": "LAW-007", "category": "消费者权益", "question": "网购商品与描述严重不符，我能要求退一赔三吗？", "is_law_related": true, "expected_keywords": ["消费者", "经营者", "欺诈", "三倍赔偿", "退款", "虚假宣传"], "expected_laws": ["《中华人民共和国消费者权益保护法》"]}
+{"id": "LAW-008", "category": "消费者权益", "question": "买到假冒伪劣商品，维权的法律依据是什么？", "is_law_related": true, "expected_keywords": ["假冒伪劣", "消费者权益", "赔偿", "惩罚性赔偿", "经营者责任"], "expected_laws": ["《中华人民共和国消费者权益保护法》", "《中华人民共和国产品质量法》"]}
+{"id": "LAW-009", "category": "消费者权益", "question": "商家设置的霸王条款是否有效？", "is_law_related": true, "expected_keywords": ["格式条款", "无效", "消费者权益", "免责条款", "显失公平"], "expected_laws": ["《中华人民共和国民法典》", "《中华人民共和国消费者权益保护法》"]}
+{"id": "LAW-010", "category": "消费者权益", "question": "网购七天无理由退货的范围是什么，哪些商品不适用？", "is_law_related": true, "expected_keywords": ["七天无理由退货", "消费者", "网络购物", "鲜活易腐", "数字化商品"], "expected_laws": ["《中华人民共和国消费者权益保护法》"]}
+{"id": "LAW-011", "category": "消费者权益", "question": "预付款消费被商家跑路，如何维权？", "is_law_related": true, "expected_keywords": ["预付款", "消费者权益", "返还", "经营者", "民事责任"], "expected_laws": ["《中华人民共和国消费者权益保护法》", "《中华人民共和国民法典》"]}
+{"id": "LAW-012", "category": "知识产权", "question": "别人抄袭了我的原创文章，我能起诉维权吗？", "is_law_related": true, "expected_keywords": ["著作权", "侵权", "复制权", "损害赔偿", "署名权", "版权"], "expected_laws": ["《中华人民共和国著作权法》"]}
+{"id": "LAW-013", "category": "知识产权", "question": "注册商标被他人使用，法律如何保护？", "is_law_related": true, "expected_keywords": ["注册商标", "商标侵权", "赔偿", "禁令", "专用权"], "expected_laws": ["《中华人民共和国商标法》"]}
+{"id": "LAW-014", "category": "知识产权", "question": "专利被侵权后，专利权人有哪些救济途径？", "is_law_related": true, "expected_keywords": ["专利权", "侵权", "赔偿", "停止侵权", "诉讼"], "expected_laws": ["《中华人民共和国专利法》"]}
+{"id": "LAW-015", "category": "知识产权", "question": "公司员工离职后泄露商业秘密，企业可以如何追责？", "is_law_related": true, "expected_keywords": ["商业秘密", "竞业禁止", "保密义务", "赔偿", "不正当竞争"], "expected_laws": ["《中华人民共和国反不正当竞争法》", "《中华人民共和国劳动合同法》"]}
+{"id": "LAW-016", "category": "公司法", "question": "有限责任公司的股东可以随意转让股权吗？", "is_law_related": true, "expected_keywords": ["股权转让", "股东", "优先购买权", "有限责任公司", "章程"], "expected_laws": ["《中华人民共和国公司法》"]}
+{"id": "LAW-017", "category": "公司法", "question": "公司注册资本认缴后股东不实缴会有什么后果？", "is_law_related": true, "expected_keywords": ["注册资本", "认缴", "实缴", "股东责任", "出资义务"], "expected_laws": ["《中华人民共和国公司法》"]}
+{"id": "LAW-018", "category": "公司法", "question": "董事对公司造成损失，股东能否起诉董事？", "is_law_related": true, "expected_keywords": ["董事责任", "股东代表诉讼", "忠实义务", "勤勉义务", "赔偿"], "expected_laws": ["《中华人民共和国公司法》"]}
+{"id": "LAW-019", "category": "公司法", "question": "如何依法解散一家公司？", "is_law_related": true, "expected_keywords": ["公司解散", "清算", "股东会决议", "强制解散", "注销"], "expected_laws": ["《中华人民共和国公司法》"]}
+{"id": "LAW-020", "category": "房地产", "question": "购买二手房后发现房屋存在重大质量问题，如何维权？", "is_law_related": true, "expected_keywords": ["房屋质量", "瑕疵担保", "解除合同", "赔偿", "合同欺诈"], "expected_laws": ["《中华人民共和国民法典》", "《中华人民共和国城市房地产管理法》"]}
+{"id": "LAW-021", "category": "房地产", "question": "房东不退押金，租客的法律救济途径有哪些？", "is_law_related": true, "expected_keywords": ["押金", "租赁合同", "返还", "违约责任", "房东"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-022", "category": "房地产", "question": "住宅小区业主的共有部分权益如何保护？", "is_law_related": true, "expected_keywords": ["业主", "共有部分", "物业管理", "业主委员会", "收益分配"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-023", "category": "房地产", "question": "开发商延期交房，购房者可以要求哪些赔偿？", "is_law_related": true, "expected_keywords": ["延期交房", "违约金", "赔偿", "解除合同", "开发商"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-024", "category": "继承法", "question": "父母去世没有留下遗嘱，财产应该怎么分配？", "is_law_related": true, "expected_keywords": ["法定继承", "第一顺序继承人", "遗产分配", "配偶", "子女", "父母"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-025", "category": "继承法", "question": "立遗嘱需要满足什么条件才合法有效？", "is_law_related": true, "expected_keywords": ["遗嘱", "自书遗嘱", "公证遗嘱", "见证人", "遗嘱形式", "遗嘱能力"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-026", "category": "继承法", "question": "丧失继承权的情形有哪些？", "is_law_related": true, "expected_keywords": ["继承权丧失", "遗弃被继承人", "伪造遗嘱", "故意杀害", "被继承人"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-027", "category": "继承法", "question": "代位继承是什么意思，适用条件是什么？", "is_law_related": true, "expected_keywords": ["代位继承", "被代位继承人", "先于被继承人死亡", "直系晚辈"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-028", "category": "侵权责任", "question": "邻居家的狗把我咬伤了，狗主人需要赔偿吗？", "is_law_related": true, "expected_keywords": ["饲养动物", "损害赔偿", "动物侵权", "饲养人", "医疗费"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-029", "category": "侵权责任", "question": "被人在网上恶意诽谤，如何依法维权？", "is_law_related": true, "expected_keywords": ["名誉权", "侵权", "精神损害赔偿", "诽谤", "停止侵害", "赔礼道歉"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-030", "category": "侵权责任", "question": "产品存在缺陷导致消费者受伤，厂家和销售商各负什么责任？", "is_law_related": true, "expected_keywords": ["产品责任", "缺陷产品", "生产者", "销售者", "赔偿", "连带责任"], "expected_laws": ["《中华人民共和国产品质量法》", "《中华人民共和国民法典》"]}
+{"id": "LAW-031", "category": "交通事故", "question": "醉驾发生交通事故，保险公司是否赔偿？", "is_law_related": true, "expected_keywords": ["醉酒驾车", "交通事故", "保险免赔", "强制险", "垫付", "追偿"], "expected_laws": ["《中华人民共和国道路交通安全法》", "《机动车交通事故责任强制保险条例》"]}
+{"id": "LAW-032", "category": "交通事故", "question": "行人闯红灯被车撞伤，谁的责任更大？", "is_law_related": true, "expected_keywords": ["交通事故责任", "行人", "机动车", "过错责任", "过失相抵"], "expected_laws": ["《中华人民共和国道路交通安全法》"]}
+{"id": "LAW-033", "category": "交通事故", "question": "肇事逃逸后被抓，要承担哪些法律责任？", "is_law_related": true, "expected_keywords": ["肇事逃逸", "交通肇事罪", "有期徒刑", "吊销驾照", "加重处罚"], "expected_laws": ["《中华人民共和国刑法》", "《中华人民共和国道路交通安全法》"]}
+{"id": "LAW-034", "category": "刑事诉讼", "question": "被警察拘留后，家属有哪些知情权和探视权？", "is_law_related": true, "expected_keywords": ["拘留通知", "家属", "辩护人", "探视权", "告知义务"], "expected_laws": ["《中华人民共和国刑事诉讼法》"]}
+{"id": "LAW-035", "category": "刑事诉讼", "question": "犯罪嫌疑人在什么情况下可以申请取保候审？", "is_law_related": true, "expected_keywords": ["取保候审", "犯罪嫌疑人", "申请条件", "保证人", "保证金", "羁押"], "expected_laws": ["《中华人民共和国刑事诉讼法》"]}
+{"id": "LAW-036", "category": "刑事诉讼", "question": "刑事案件中，什么情况下可以不起诉？", "is_law_related": true, "expected_keywords": ["不起诉", "酌定不起诉", "法定不起诉", "检察院", "情节轻微"], "expected_laws": ["《中华人民共和国刑事诉讼法》"]}
+{"id": "LAW-037", "category": "刑法", "question": "正当防卫的条件是什么，防卫过当如何处理？", "is_law_related": true, "expected_keywords": ["正当防卫", "防卫过当", "不法侵害", "有期徒刑", "减轻处罚"], "expected_laws": ["《中华人民共和国刑法》"]}
+{"id": "LAW-038", "category": "刑法", "question": "诈骗罪的立案标准和量刑是怎样的？", "is_law_related": true, "expected_keywords": ["诈骗罪", "诈骗数额", "有期徒刑", "数额较大", "数额特别巨大"], "expected_laws": ["《中华人民共和国刑法》"]}
+{"id": "LAW-039", "category": "刑法", "question": "帮助他人洗钱会构成什么罪，如何量刑？", "is_law_related": true, "expected_keywords": ["洗钱罪", "掩饰隐瞒犯罪所得", "有期徒刑", "罚金", "共犯"], "expected_laws": ["《中华人民共和国刑法》"]}
+{"id": "LAW-040", "category": "劳动法", "question": "公司违法解除劳动合同，员工能要求哪些赔偿？", "is_law_related": true, "expected_keywords": ["违法解除", "赔偿金", "二倍经济补偿", "用人单位", "劳动合同法"], "expected_laws": ["《中华人民共和国劳动合同法》"]}
+{"id": "LAW-041", "category": "劳动法", "question": "试用期内用人单位能随意辞退员工吗？", "is_law_related": true, "expected_keywords": ["试用期", "解除劳动合同", "不胜任", "经济补偿", "合法解除"], "expected_laws": ["《中华人民共和国劳动合同法》"]}
+{"id": "LAW-042", "category": "未成年人保护", "question": "学校老师对学生实施体罚，家长可以采取什么法律行动？", "is_law_related": true, "expected_keywords": ["未成年人", "体罚", "学校责任", "监护人", "赔偿", "违法行为"], "expected_laws": ["《中华人民共和国未成年人保护法》", "《中华人民共和国义务教育法》"]}
+{"id": "LAW-043", "category": "未成年人保护", "question": "未成年人犯罪的法律处理方式与成年人有何不同？", "is_law_related": true, "expected_keywords": ["未成年人犯罪", "从轻处罚", "不公开审理", "不起诉", "14周岁", "16周岁"], "expected_laws": ["《中华人民共和国刑法》", "《中华人民共和国未成年人保护法》"]}
+{"id": "LAW-044", "category": "个人信息保护", "question": "公司泄露员工身份证号码，员工如何维权？", "is_law_related": true, "expected_keywords": ["个人信息", "泄露", "侵权责任", "损害赔偿", "个人信息处理者"], "expected_laws": ["《中华人民共和国个人信息保护法》", "《中华人民共和国民法典》"]}
+{"id": "LAW-045", "category": "个人信息保护", "question": "APP强制索取与功能无关的隐私权限是否违法？", "is_law_related": true, "expected_keywords": ["个人信息", "同意", "最小必要原则", "隐私权", "违法"], "expected_laws": ["《中华人民共和国个人信息保护法》", "《中华人民共和国网络安全法》"]}
+{"id": "LAW-046", "category": "合同法", "question": "口头合同有法律效力吗，发生纠纷如何证明？", "is_law_related": true, "expected_keywords": ["口头合同", "合同形式", "证明", "录音", "证人", "合同成立"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-047", "category": "合同法", "question": "合同中的违约金条款过高，可以要求法院调整吗？", "is_law_related": true, "expected_keywords": ["违约金", "过高", "调整", "损失", "法院", "实际损失"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-048", "category": "婚姻家事", "question": "婚前财产婚后产生的收益，离婚时归谁所有？", "is_law_related": true, "expected_keywords": ["婚前财产", "收益", "夫妻共同财产", "个人财产", "离婚分割"], "expected_laws": ["《中华人民共和国民法典》"]}
+{"id": "LAW-049", "category": "民事诉讼", "question": "民间借贷的诉讼时效是多久，超过诉讼时效还能起诉吗？", "is_law_related": true, "expected_keywords": ["诉讼时效", "三年", "起诉", "时效中断", "民间借贷"], "expected_laws": ["《中华人民共和国民法典》", "《中华人民共和国民事诉讼法》"]}
+{"id": "LAW-050", "category": "行政法", "question": "行政机关乱收费，公民如何通过法律途径维权？", "is_law_related": true, "expected_keywords": ["行政处罚", "乱收费", "行政复议", "行政诉讼", "申请退还", "违法"], "expected_laws": ["《中华人民共和国行政复议法》", "《中华人民共和国行政诉讼法》", "《中华人民共和国行政处罚法》"]}

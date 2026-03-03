@@ -201,5 +201,4 @@ uploads
 _archive/
 models/
 logs/
-
-*.db
+law_assistant.db
