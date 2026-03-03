@@ -6,7 +6,7 @@ class Config:
     LAW_BOOK_CHUNK_SIZE = 100 # 每块切分的最大长度为100字符
     LAW_BOOK_CHUNK_OVERLAP = 20 # 每块切分时，前后块重叠20字符以防止语义割裂
     LAW_VS_COLLECTION_NAME = "law" # 法律向量数据库集合名称
-    LAW_VS_SEARCH_K = 10 # 检索后最多返回10条相关内容
+    LAW_VS_SEARCH_K = 7 # 检索后最多返回7条相关内容
 
     WEB_VS_COLLECTION_NAME = "web" # 网络数据向量数据库集合名称(注意此处未使用网络向量数据库)
     WEB_VS_SEARCH_K = 5 # 检索后最多返回5条相关内容(实际上这边是直接调用DuckDuckGo搜索, 未存入ChromaDB)
