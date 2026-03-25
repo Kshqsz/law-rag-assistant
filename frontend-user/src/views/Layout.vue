@@ -498,11 +498,18 @@ const handleLogout = async () => {
 
 .nav-menu {
   flex: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .nav-section {
   margin-bottom: 20px;
+}
+
+.nav-section:last-child {
+  flex: 1;
+  min-height: 0;
 }
 
 .nav-label {
@@ -561,7 +568,7 @@ const handleLogout = async () => {
 }
 
 .conversation-list {
-  max-height: 480px;
+  height: 100%;
   overflow-y: auto;
 }
 
