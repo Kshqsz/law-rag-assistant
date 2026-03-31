@@ -1,0 +1,1091 @@
+{
+  "report_name": "citation_accuracy_20260331_155443",
+  "generated_at": "2026-03-31T15:54:43.877025",
+  "analysis_summary": {
+    "total_ai_messages": 110,
+    "total_citations": 1296,
+    "verified_citations": 1193,
+    "unverified_citations": 103,
+    "overall_accuracy": 0.8963,
+    "accuracy_percentage": "89.6%"
+  },
+  "conversation_level": {
+    "count": 74,
+    "stats": {
+      "106": {
+        "verified": 11,
+        "unverified": 1,
+        "accuracy": 0.9167
+      },
+      "105": {
+        "verified": 19,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "104": {
+        "verified": 18,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "103": {
+        "verified": 16,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "102": {
+        "verified": 17,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "99": {
+        "verified": 18,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "96": {
+        "verified": 12,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "93": {
+        "verified": 6,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "90": {
+        "verified": 8,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "88": {
+        "verified": 8,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "87": {
+        "verified": 6,
+        "unverified": 2,
+        "accuracy": 0.75
+      },
+      "86": {
+        "verified": 18,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "84": {
+        "verified": 14,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "83": {
+        "verified": 22,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "82": {
+        "verified": 8,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "81": {
+        "verified": 16,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "79": {
+        "verified": 21,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "78": {
+        "verified": 26,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "74": {
+        "verified": 10,
+        "unverified": 1,
+        "accuracy": 0.9091
+      },
+      "68": {
+        "verified": 11,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "67": {
+        "verified": 17,
+        "unverified": 7,
+        "accuracy": 0.875
+      },
+      "66": {
+        "verified": 42,
+        "unverified": 1,
+        "accuracy": 0.9412
+      },
+      "63": {
+        "verified": 3,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "62": {
+        "verified": 5,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "61": {
+        "verified": 4,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "60": {
+        "verified": 8,
+        "unverified": 1,
+        "accuracy": 0.8889
+      },
+      "58": {
+        "verified": 29,
+        "unverified": 1,
+        "accuracy": 0.875
+      },
+      "57": {
+        "verified": 3,
+        "unverified": 1,
+        "accuracy": 0.75
+      },
+      "56": {
+        "verified": 17,
+        "unverified": 1,
+        "accuracy": 0.9444
+      },
+      "52": {
+        "verified": 23,
+        "unverified": 1,
+        "accuracy": 0.9583
+      },
+      "51": {
+        "verified": 16,
+        "unverified": 1,
+        "accuracy": 0.9412
+      },
+      "50": {
+        "verified": 6,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "49": {
+        "verified": 2,
+        "unverified": 2,
+        "accuracy": 0.5
+      },
+      "48": {
+        "verified": 5,
+        "unverified": 4,
+        "accuracy": 0.5556
+      },
+      "47": {
+        "verified": 3,
+        "unverified": 3,
+        "accuracy": 0.5
+      },
+      "46": {
+        "verified": 20,
+        "unverified": 1,
+        "accuracy": 0.9524
+      },
+      "45": {
+        "verified": 2,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "44": {
+        "verified": 5,
+        "unverified": 10,
+        "accuracy": 0.3333
+      },
+      "43": {
+        "verified": 15,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "42": {
+        "verified": 21,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "39": {
+        "verified": 50,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "38": {
+        "verified": 14,
+        "unverified": 1,
+        "accuracy": 0.9091
+      },
+      "37": {
+        "verified": 18,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "36": {
+        "verified": 18,
+        "unverified": 1,
+        "accuracy": 0.9
+      },
+      "35": {
+        "verified": 12,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "34": {
+        "verified": 6,
+        "unverified": 6,
+        "accuracy": 0.5
+      },
+      "33": {
+        "verified": 43,
+        "unverified": 4,
+        "accuracy": 1.0
+      },
+      "32": {
+        "verified": 6,
+        "unverified": 2,
+        "accuracy": 0.75
+      },
+      "31": {
+        "verified": 12,
+        "unverified": 3,
+        "accuracy": 0.8
+      },
+      "30": {
+        "verified": 18,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "29": {
+        "verified": 4,
+        "unverified": 6,
+        "accuracy": 0.4
+      },
+      "28": {
+        "verified": 33,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "26": {
+        "verified": 8,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "25": {
+        "verified": 10,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "24": {
+        "verified": 40,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "23": {
+        "verified": 32,
+        "unverified": 6,
+        "accuracy": 0.5
+      },
+      "22": {
+        "verified": 5,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "21": {
+        "verified": 6,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "20": {
+        "verified": 5,
+        "unverified": 1,
+        "accuracy": 0.8333
+      },
+      "19": {
+        "verified": 10,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "18": {
+        "verified": 13,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "17": {
+        "verified": 1,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "16": {
+        "verified": 12,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "14": {
+        "verified": 8,
+        "unverified": 1,
+        "accuracy": 0.8889
+      },
+      "13": {
+        "verified": 11,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "12": {
+        "verified": 37,
+        "unverified": 4,
+        "accuracy": 0.0
+      },
+      "11": {
+        "verified": 14,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "10": {
+        "verified": 16,
+        "unverified": 2,
+        "accuracy": 1.0
+      },
+      "8": {
+        "verified": 43,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "5": {
+        "verified": 24,
+        "unverified": 5,
+        "accuracy": 1.0
+      },
+      "4": {
+        "verified": 14,
+        "unverified": 1,
+        "accuracy": 1.0
+      },
+      "3": {
+        "verified": 53,
+        "unverified": 10,
+        "accuracy": 1.0
+      },
+      "2": {
+        "verified": 7,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "1": {
+        "verified": 59,
+        "unverified": 12,
+        "accuracy": 0.5556
+      }
+    }
+  },
+  "detailed_results": [
+    {
+      "conversation_id": 106,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 2195,
+      "total_citations": 12,
+      "verified_count": 11,
+      "unverified_count": 1,
+      "accuracy_score": 0.9167,
+      "unverified_citations": [
+        {
+          "matched_text": "《电子签名法》",
+          "law_name": "电子签名法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 105,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 2489,
+      "total_citations": 19,
+      "verified_count": 19,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 104,
+      "user_id": 2,
+      "question": "交通事故责任如何认定？",
+      "answer_length": 2784,
+      "total_citations": 18,
+      "verified_count": 18,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 103,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么处理",
+      "answer_length": 2533,
+      "total_citations": 16,
+      "verified_count": 16,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 102,
+      "user_id": 2,
+      "question": "劳动合同解除有哪些情形？",
+      "answer_length": 1874,
+      "total_citations": 17,
+      "verified_count": 17,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 99,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 2507,
+      "total_citations": 18,
+      "verified_count": 18,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 96,
+      "user_id": 2,
+      "question": "交通事故责任如何认定？",
+      "answer_length": 1756,
+      "total_citations": 12,
+      "verified_count": 12,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 93,
+      "user_id": 2,
+      "question": "交通事故责任如何认定？",
+      "answer_length": 1937,
+      "total_citations": 6,
+      "verified_count": 6,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 90,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 1692,
+      "total_citations": 8,
+      "verified_count": 8,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 88,
+      "user_id": 2,
+      "question": "民间借贷的诉讼时效是多久？",
+      "answer_length": 679,
+      "total_citations": 8,
+      "verified_count": 8,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 87,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 1864,
+      "total_citations": 8,
+      "verified_count": 6,
+      "unverified_count": 2,
+      "accuracy_score": 0.75,
+      "unverified_citations": [
+        {
+          "matched_text": "（涉嫌妨害作证罪，刑法第307条）",
+          "law_name": "刑法",
+          "article_num": "307"
+        },
+        {
+          "matched_text": "（刑法第72条）",
+          "law_name": "刑法",
+          "article_num": "72"
+        }
+      ]
+    },
+    {
+      "conversation_id": 86,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 2296,
+      "total_citations": 18,
+      "verified_count": 18,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 84,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 2304,
+      "total_citations": 14,
+      "verified_count": 14,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 83,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 3030,
+      "total_citations": 22,
+      "verified_count": 22,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 82,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么处理、",
+      "answer_length": 2885,
+      "total_citations": 3,
+      "verified_count": 3,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 82,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么处理、",
+      "answer_length": 2464,
+      "total_citations": 5,
+      "verified_count": 5,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 81,
+      "user_id": 2,
+      "question": "劳动合同解除有哪些情形？",
+      "answer_length": 1857,
+      "total_citations": 16,
+      "verified_count": 16,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 79,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 1842,
+      "total_citations": 21,
+      "verified_count": 21,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 78,
+      "user_id": 2,
+      "question": "劳动合同解除有哪些情形？",
+      "answer_length": 2150,
+      "total_citations": 26,
+      "verified_count": 26,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 74,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 2020,
+      "total_citations": 11,
+      "verified_count": 10,
+      "unverified_count": 1,
+      "accuracy_score": 0.9091,
+      "unverified_citations": [
+        {
+          "matched_text": "《电子签名法》",
+          "law_name": "电子签名法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 68,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 1939,
+      "total_citations": 11,
+      "verified_count": 11,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 67,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，我该怎么办",
+      "answer_length": 1563,
+      "total_citations": 4,
+      "verified_count": 4,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 67,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，我该怎么办",
+      "answer_length": 3184,
+      "total_citations": 12,
+      "verified_count": 6,
+      "unverified_count": 6,
+      "accuracy_score": 0.5,
+      "unverified_citations": [
+        {
+          "matched_text": "《刑法》第17条",
+          "law_name": "刑法",
+          "article_num": "17"
+        },
+        {
+          "matched_text": "《刑事诉讼法》第290条",
+          "law_name": "刑事诉讼法",
+          "article_num": "290"
+        },
+        {
+          "matched_text": "《刑法》第18条",
+          "law_name": "刑法",
+          "article_num": "18"
+        }
+      ]
+    },
+    {
+      "conversation_id": 67,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，我该怎么办",
+      "answer_length": 2046,
+      "total_citations": 8,
+      "verified_count": 7,
+      "unverified_count": 1,
+      "accuracy_score": 0.875,
+      "unverified_citations": [
+        {
+          "matched_text": "《刑事诉讼法》第290条",
+          "law_name": "刑事诉讼法",
+          "article_num": "290"
+        }
+      ]
+    },
+    {
+      "conversation_id": 66,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，我该怎么办",
+      "answer_length": 1563,
+      "total_citations": 5,
+      "verified_count": 5,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 66,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，我该怎么办",
+      "answer_length": 2935,
+      "total_citations": 21,
+      "verified_count": 21,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 66,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，我该怎么办",
+      "answer_length": 2097,
+      "total_citations": 17,
+      "verified_count": 16,
+      "unverified_count": 1,
+      "accuracy_score": 0.9412,
+      "unverified_citations": [
+        {
+          "matched_text": "《道路交通安全法》",
+          "law_name": "道路交通安全法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 63,
+      "user_id": 2,
+      "question": "故意杀人怎么办",
+      "answer_length": 2473,
+      "total_citations": 3,
+      "verified_count": 3,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 62,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 2004,
+      "total_citations": 5,
+      "verified_count": 5,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 61,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，我不是故意的 怎么办",
+      "answer_length": 1821,
+      "total_citations": 4,
+      "verified_count": 4,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 60,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 1608,
+      "total_citations": 9,
+      "verified_count": 8,
+      "unverified_count": 1,
+      "accuracy_score": 0.8889,
+      "unverified_citations": [
+        {
+          "matched_text": "《电子签名法》",
+          "law_name": "电子签名法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 58,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么办",
+      "answer_length": 1248,
+      "total_citations": 8,
+      "verified_count": 8,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 58,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么办",
+      "answer_length": 2107,
+      "total_citations": 14,
+      "verified_count": 14,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 58,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么办",
+      "answer_length": 1418,
+      "total_citations": 8,
+      "verified_count": 7,
+      "unverified_count": 1,
+      "accuracy_score": 0.875,
+      "unverified_citations": [
+        {
+          "matched_text": "《刑事诉讼法》",
+          "law_name": "刑事诉讼法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 57,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 1848,
+      "total_citations": 4,
+      "verified_count": 3,
+      "unverified_count": 1,
+      "accuracy_score": 0.75,
+      "unverified_citations": [
+        {
+          "matched_text": "《法律援助法》",
+          "law_name": "法律援助法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 56,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 2400,
+      "total_citations": 18,
+      "verified_count": 17,
+      "unverified_count": 1,
+      "accuracy_score": 0.9444,
+      "unverified_citations": [
+        {
+          "matched_text": "《民事诉讼法》",
+          "law_name": "民事诉讼法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 52,
+      "user_id": 2,
+      "question": "交通事故责任如何认定？",
+      "answer_length": 2793,
+      "total_citations": 24,
+      "verified_count": 23,
+      "unverified_count": 1,
+      "accuracy_score": 0.9583,
+      "unverified_citations": [
+        {
+          "matched_text": "《刑法》",
+          "law_name": "刑法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 51,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 1889,
+      "total_citations": 17,
+      "verified_count": 16,
+      "unverified_count": 1,
+      "accuracy_score": 0.9412,
+      "unverified_citations": [
+        {
+          "matched_text": "《电子签名法》",
+          "law_name": "电子签名法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 50,
+      "user_id": 2,
+      "question": "军事网络的安全保护由谁规定",
+      "answer_length": 431,
+      "total_citations": 6,
+      "verified_count": 6,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 49,
+      "user_id": 2,
+      "question": "军事网络的安全保护由谁规定",
+      "answer_length": 534,
+      "total_citations": 4,
+      "verified_count": 2,
+      "unverified_count": 2,
+      "accuracy_score": 0.5,
+      "unverified_citations": [
+        {
+          "matched_text": "《中华人民共和国网络安全法》",
+          "law_name": "民法",
+          "article_num": null
+        },
+        {
+          "matched_text": "《中华人民共和国网络安全法》",
+          "law_name": "民法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 48,
+      "user_id": 2,
+      "question": "军事网络的安全保护由谁规定",
+      "answer_length": 588,
+      "total_citations": 9,
+      "verified_count": 5,
+      "unverified_count": 4,
+      "accuracy_score": 0.5556,
+      "unverified_citations": [
+        {
+          "matched_text": "《中华人民共和国网络安全法》",
+          "law_name": "民法",
+          "article_num": null
+        },
+        {
+          "matched_text": "《中华人民共和国数据安全法》",
+          "law_name": "民法",
+          "article_num": null
+        },
+        {
+          "matched_text": "《中华人民共和国核安全法》",
+          "law_name": "民法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 47,
+      "user_id": 2,
+      "question": "军事网络的安全保护由谁规定",
+      "answer_length": 470,
+      "total_citations": 6,
+      "verified_count": 3,
+      "unverified_count": 3,
+      "accuracy_score": 0.5,
+      "unverified_citations": [
+        {
+          "matched_text": "《中华人民共和国网络安全法》",
+          "law_name": "民法",
+          "article_num": null
+        },
+        {
+          "matched_text": "《中华人民共和国数据安全法》",
+          "law_name": "民法",
+          "article_num": null
+        },
+        {
+          "matched_text": "《中华人民共和国核安全法》",
+          "law_name": "民法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 46,
+      "user_id": 2,
+      "question": "问题：赵某为某市小学教师。在执教期间，曾有学生家长于2019年1月以赵某非礼其女儿为由向学校举报，赵某因此写下书面检讨，保证不再发生此类事件。然而，2019年1月至2022年6月以来，赵某利用教学之便",
+      "answer_length": 2421,
+      "total_citations": 21,
+      "verified_count": 20,
+      "unverified_count": 1,
+      "accuracy_score": 0.9524,
+      "unverified_citations": [
+        {
+          "matched_text": "《性侵意见》第25条",
+          "law_name": "性侵意见",
+          "article_num": "25"
+        }
+      ]
+    },
+    {
+      "conversation_id": 45,
+      "user_id": 2,
+      "question": "民法典第第一千二百一十七条是什么",
+      "answer_length": 620,
+      "total_citations": 2,
+      "verified_count": 2,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 44,
+      "user_id": 2,
+      "question": "不小心把人撞死了需要承担什么法律责任？",
+      "answer_length": 2226,
+      "total_citations": 15,
+      "verified_count": 5,
+      "unverified_count": 10,
+      "accuracy_score": 0.3333,
+      "unverified_citations": [
+        {
+          "matched_text": "《刑法》第133条",
+          "law_name": "刑法",
+          "article_num": "133"
+        },
+        {
+          "matched_text": "《刑法》第232条",
+          "law_name": "刑法",
+          "article_num": "232"
+        },
+        {
+          "matched_text": "《民法典》第1179条",
+          "law_name": "民法",
+          "article_num": "1179"
+        }
+      ]
+    },
+    {
+      "conversation_id": 43,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 2273,
+      "total_citations": 15,
+      "verified_count": 15,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 42,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么办",
+      "answer_length": 1938,
+      "total_citations": 21,
+      "verified_count": 21,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 39,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么办",
+      "answer_length": 3345,
+      "total_citations": 30,
+      "verified_count": 30,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 39,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么办",
+      "answer_length": 2207,
+      "total_citations": 20,
+      "verified_count": 20,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 38,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，如何处理",
+      "answer_length": 2397,
+      "total_citations": 4,
+      "verified_count": 4,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    }
+  ]
+}

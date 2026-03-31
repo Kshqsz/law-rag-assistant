@@ -1,0 +1,185 @@
+{
+  "report_name": "citation_accuracy_20260331_155433",
+  "generated_at": "2026-03-31T15:54:33.746721",
+  "analysis_summary": {
+    "total_ai_messages": 10,
+    "total_citations": 134,
+    "verified_citations": 133,
+    "unverified_citations": 1,
+    "overall_accuracy": 0.9917,
+    "accuracy_percentage": "99.2%"
+  },
+  "conversation_level": {
+    "count": 10,
+    "stats": {
+      "106": {
+        "verified": 11,
+        "unverified": 1,
+        "accuracy": 0.9167
+      },
+      "105": {
+        "verified": 19,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "104": {
+        "verified": 18,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "103": {
+        "verified": 16,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "102": {
+        "verified": 17,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "99": {
+        "verified": 18,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "96": {
+        "verified": 12,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "93": {
+        "verified": 6,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "90": {
+        "verified": 8,
+        "unverified": 0,
+        "accuracy": 1.0
+      },
+      "88": {
+        "verified": 8,
+        "unverified": 0,
+        "accuracy": 1.0
+      }
+    }
+  },
+  "detailed_results": [
+    {
+      "conversation_id": 106,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 2195,
+      "total_citations": 12,
+      "verified_count": 11,
+      "unverified_count": 1,
+      "accuracy_score": 0.9167,
+      "unverified_citations": [
+        {
+          "matched_text": "《电子签名法》",
+          "law_name": "电子签名法",
+          "article_num": null
+        }
+      ]
+    },
+    {
+      "conversation_id": 105,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 2489,
+      "total_citations": 19,
+      "verified_count": 19,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 104,
+      "user_id": 2,
+      "question": "交通事故责任如何认定？",
+      "answer_length": 2784,
+      "total_citations": 18,
+      "verified_count": 18,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 103,
+      "user_id": 2,
+      "question": "根据上传的法律文件内容，怎么处理",
+      "answer_length": 2533,
+      "total_citations": 16,
+      "verified_count": 16,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 102,
+      "user_id": 2,
+      "question": "劳动合同解除有哪些情形？",
+      "answer_length": 1874,
+      "total_citations": 17,
+      "verified_count": 17,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 99,
+      "user_id": 2,
+      "question": "不小心杀人怎么办",
+      "answer_length": 2507,
+      "total_citations": 18,
+      "verified_count": 18,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 96,
+      "user_id": 2,
+      "question": "交通事故责任如何认定？",
+      "answer_length": 1756,
+      "total_citations": 12,
+      "verified_count": 12,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 93,
+      "user_id": 2,
+      "question": "交通事故责任如何认定？",
+      "answer_length": 1937,
+      "total_citations": 6,
+      "verified_count": 6,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 90,
+      "user_id": 2,
+      "question": "租房合同应该注意什么？",
+      "answer_length": 1692,
+      "total_citations": 8,
+      "verified_count": 8,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    },
+    {
+      "conversation_id": 88,
+      "user_id": 2,
+      "question": "民间借贷的诉讼时效是多久？",
+      "answer_length": 679,
+      "total_citations": 8,
+      "verified_count": 8,
+      "unverified_count": 0,
+      "accuracy_score": 1.0,
+      "unverified_citations": []
+    }
+  ]
+}
