@@ -135,6 +135,42 @@
       </div>
       <p class="disclaimer">AI回答仅供参考，具体法律问题请咨询专业律师</p>
     </div>
+
+    <!-- 点踩反馈弹窗 -->
+    <el-dialog
+      v-model="dislikeDialogVisible"
+      title="告诉我们哪里需要改进"
+      width="520px"
+      class="feedback-dialog"
+      destroy-on-close
+    >
+      <p class="feedback-tip">请选择问题类型（可多选），也可以补充具体说明：</p>
+
+      <el-checkbox-group v-model="selectedDislikeReasons" class="feedback-reason-group">
+        <el-checkbox
+          v-for="reason in dislikeReasonOptions"
+          :key="reason"
+          :label="reason"
+        >
+          {{ reason }}
+        </el-checkbox>
+      </el-checkbox-group>
+
+      <el-input
+        v-model="dislikeCustomComment"
+        type="textarea"
+        :rows="4"
+        maxlength="500"
+        show-word-limit
+        placeholder="可选：请描述回答中具体哪里有问题，帮助我们改进"
+        class="feedback-custom-input"
+      />
+
+      <template #footer>
+        <el-button @click="closeDislikeDialog">取消</el-button>
+        <el-button type="primary" @click="submitDislikeFeedback">提交反馈</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -155,6 +191,18 @@ const messagesContainer = ref(null)
 const fileInput = ref(null)
 const uploadedFile = ref(null)
 const uploadedDocumentId = ref(null)
+const dislikeDialogVisible = ref(false)
+const selectedDislikeReasons = ref([])
+const dislikeCustomComment = ref('')
+const dislikeTarget = ref(null)
+
+const dislikeReasonOptions = [
+  '准确率较差',
+  '法律依据不充分',
+  '回答不完整',
+  '表达语气不佳',
+  '与问题不相关'
+]
 
 const exampleQuestions = [
   { icon: '🏠', question: '租房合同应该注意什么？' },
@@ -289,10 +337,67 @@ const handleFeedback = async (msg, index, rating) => {
       ElMessage.success('已取消评价')
       return
     }
+
+    if (rating === -1) {
+      openDislikeDialog(msg, index)
+      return
+    }
     
     await api.submitFeedback(msg.message_id, rating)
     chatStore.messages[index].feedback = rating
     ElMessage.success(rating === 1 ? '感谢您的好评 👍' : '感谢您的反馈 👎')
+  } catch {
+    ElMessage.error('评价提交失败')
+  }
+}
+
+const openDislikeDialog = (msg, index) => {
+  dislikeTarget.value = { messageId: msg.message_id, index }
+  selectedDislikeReasons.value = []
+  dislikeCustomComment.value = ''
+  dislikeDialogVisible.value = true
+}
+
+const closeDislikeDialog = () => {
+  dislikeDialogVisible.value = false
+  dislikeTarget.value = null
+  selectedDislikeReasons.value = []
+  dislikeCustomComment.value = ''
+}
+
+const buildDislikeComment = () => {
+  const reasons = selectedDislikeReasons.value
+  const detail = dislikeCustomComment.value.trim()
+  const parts = []
+
+  if (reasons.length > 0) {
+    parts.push(`问题类型：${reasons.join('；')}`)
+  }
+  if (detail) {
+    parts.push(`补充说明：${detail}`)
+  }
+
+  return parts.join('；')
+}
+
+const submitDislikeFeedback = async () => {
+  const target = dislikeTarget.value
+  if (!target?.messageId) {
+    ElMessage.warning('目标消息不存在，请重试')
+    return
+  }
+
+  const comment = buildDislikeComment()
+  if (!comment) {
+    ElMessage.warning('请至少选择一个问题类型或填写补充说明')
+    return
+  }
+
+  try {
+    await api.submitFeedback(target.messageId, -1, comment)
+    chatStore.messages[target.index].feedback = -1
+    ElMessage.success('感谢您的反馈 👎')
+    closeDislikeDialog()
   } catch {
     ElMessage.error('评价提交失败')
   }
@@ -618,5 +723,33 @@ const handleFeedback = async (msg, index, rating) => {
   font-size: 0.8rem;
   color: var(--text-muted);
   margin-top: 12px;
+}
+
+.feedback-tip {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.feedback-reason-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  :deep(.el-checkbox) {
+    margin-right: 0;
+    white-space: normal;
+    line-height: 1.3;
+  }
+}
+
+.feedback-custom-input {
+  margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+  .feedback-reason-group {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
