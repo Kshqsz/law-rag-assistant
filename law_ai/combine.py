@@ -65,14 +65,17 @@ def combine_law_docs(docs: List[Document]) -> str:
         if 'book' in metadata:
             content = doc.page_content.strip()
             # 只过滤空内容和纯标题（如"第一节 一般规定"这种没有实际条文的）
-            # 纯标题特征：以"第"开头，且不包含"条"字
             is_empty_title = (content.startswith('第') and 
                              '条' not in content and 
                              len(content) < 30)
             
+
+            
             # 保留所有非空且非纯标题的文档（包括用户上传的短文档）
             if content and not is_empty_title:
                 law_books[metadata["book"]].append(doc)
+
+
 
     law_str = ""
     book_num = 0

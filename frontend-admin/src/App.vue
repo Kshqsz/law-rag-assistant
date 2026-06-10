@@ -1,15 +1,21 @@
 <template>
-  <div class="app-container" :class="{ 'dark': isDark }">
+  <div class="app-container">
     <router-view />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
 
-// 默认使用暗色主题
-const isDark = ref(true)
-document.documentElement.classList.add('dark')
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'light') {
+    document.documentElement.classList.remove('dark')
+  } else {
+    document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  }
+})
 </script>
 
 <style lang="scss">

@@ -11,6 +11,18 @@
         <router-link to="/users" class="nav-link active">用户管理</router-link>
       </div>
       <div class="header-right">
+        <el-button 
+          class="theme-toggle-btn" 
+          circle 
+          @click="toggleTheme" 
+          :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
+          style="margin-right: 16px;"
+        >
+          <el-icon :size="16">
+            <Sunny v-if="isDark" />
+            <Moon v-else />
+          </el-icon>
+        </el-button>
         <span class="admin-name">{{ adminStore.username }}</span>
         <el-button type="danger" plain size="small" @click="handleLogout">
           退出登录
@@ -126,8 +138,31 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(20)
 const searchKeyword = ref('')
+const isDark = ref(false)
+
+// 切换主题
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
+  }
+}
 
 onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'light') {
+    isDark.value = false
+    document.documentElement.classList.remove('dark')
+  } else {
+    isDark.value = true
+    document.documentElement.classList.add('dark')
+  }
+
   fetchUsers()
 })
 
@@ -208,6 +243,24 @@ const handleLogout = () => {
   position: sticky;
   top: 0;
   z-index: 100;
+
+  .header-right {
+    display: flex;
+    align-items: center;
+
+    .theme-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      transition: var(--transition);
+      
+      &:hover {
+        background: var(--bg-hover);
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+      }
+    }
+  }
   
   .header-left {
     display: flex;

@@ -17,6 +17,25 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+// 浅色主题
+:root:not(.dark) {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #ffffff;
+  --bg-hover: #f0f2f5;
+  --border-color: #e4e7ed;
+  --text-primary: #303133;
+  --text-secondary: #606266;
+  --text-muted: #909399;
+  --accent-color: #10a37f;
+  --accent-hover: #0e8c6d;
+  --primary-color: #409eff;
+  --danger-color: #f56c6c;
+  --warning-color: #e6a23c;
+  --success-color: #67c23a;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
 // 重置样式
 * {
   margin: 0;

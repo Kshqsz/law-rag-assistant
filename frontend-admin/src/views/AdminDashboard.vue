@@ -11,6 +11,18 @@
         <router-link to="/users" class="nav-link">用户管理</router-link>
       </div>
       <div class="header-right">
+        <el-button 
+          class="theme-toggle-btn" 
+          circle 
+          @click="toggleTheme" 
+          :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
+          style="margin-right: 16px;"
+        >
+          <el-icon :size="16">
+            <Sunny v-if="isDark" />
+            <Moon v-else />
+          </el-icon>
+        </el-button>
         <span class="admin-name">{{ adminStore.username }}</span>
         <el-button type="danger" plain size="small" @click="handleLogout">
           退出登录
@@ -194,6 +206,20 @@ const adminStore = useAdminStore()
 
 const loading = ref(true)
 const stats = ref(null)
+const isDark = ref(false)
+
+// 切换主题
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
+  }
+}
 
 const userGrowthChart = ref(null)
 const messageGrowthChart = ref(null)
@@ -220,6 +246,16 @@ const formatTokens = (num) => {
 onMounted(async () => {
   console.log('AdminDashboard mounted')
   console.log('Admin store state:', adminStore.$state)
+  
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'light') {
+    isDark.value = false
+    document.documentElement.classList.remove('dark')
+  } else {
+    isDark.value = true
+    document.documentElement.classList.add('dark')
+  }
+
   await fetchData()
 })
 
@@ -281,7 +317,7 @@ const initUserGrowthChart = () => {
         text: '暂无数据',
         left: 'center',
         top: 'center',
-        textStyle: { color: '#8e8e8e', fontSize: 14 }
+        textStyle: { color: 'var(--text-secondary)', fontSize: 14 }
       }
     })
     return
@@ -300,12 +336,12 @@ const initUserGrowthChart = () => {
       type: 'category',
       data: data.map(d => d.date.slice(5)),
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e', fontSize: 11 }
+      axisLabel: { color: 'var(--text-secondary)', fontSize: 11 }
     },
     yAxis: {
       type: 'value',
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e' },
+      axisLabel: { color: 'var(--text-secondary)' },
       splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
     },
     series: [{
@@ -323,9 +359,9 @@ const initUserGrowthChart = () => {
     }],
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#2a2a2a',
-      borderColor: '#3f3f3f',
-      textStyle: { color: '#ececec' }
+      backgroundColor: 'var(--bg-tertiary)',
+      borderColor: 'var(--border-color)',
+      textStyle: { color: 'var(--text-primary)' }
     }
   })
   
@@ -346,7 +382,7 @@ const initMessageGrowthChart = () => {
         text: '暂无数据',
         left: 'center',
         top: 'center',
-        textStyle: { color: '#8e8e8e', fontSize: 14 }
+        textStyle: { color: 'var(--text-secondary)', fontSize: 14 }
       }
     })
     return
@@ -365,12 +401,12 @@ const initMessageGrowthChart = () => {
       type: 'category',
       data: data.map(d => d.date.slice(5)),
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e', fontSize: 11 }
+      axisLabel: { color: 'var(--text-secondary)', fontSize: 11 }
     },
     yAxis: {
       type: 'value',
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e' },
+      axisLabel: { color: 'var(--text-secondary)' },
       splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
     },
     series: [{
@@ -388,9 +424,9 @@ const initMessageGrowthChart = () => {
     }],
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#2a2a2a',
-      borderColor: '#3f3f3f',
-      textStyle: { color: '#ececec' }
+      backgroundColor: 'var(--bg-tertiary)',
+      borderColor: 'var(--border-color)',
+      textStyle: { color: 'var(--text-primary)' }
     }
   })
   
@@ -410,7 +446,7 @@ const initFeedbackChart = () => {
         text: '暂无反馈数据',
         left: 'center',
         top: 'center',
-        textStyle: { color: '#8e8e8e', fontSize: 14 }
+        textStyle: { color: 'var(--text-secondary)', fontSize: 14 }
       }
     })
     return
@@ -424,20 +460,20 @@ const initFeedbackChart = () => {
     },
     legend: {
       data: ['好评', '差评'],
-      textStyle: { color: '#8e8e8e' },
+      textStyle: { color: 'var(--text-secondary)' },
       top: 0
     },
     xAxis: {
       type: 'category',
       data: data.map(d => d.date.slice(5)),
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e', fontSize: 11 }
+      axisLabel: { color: 'var(--text-secondary)', fontSize: 11 }
     },
     yAxis: {
       type: 'value',
       minInterval: 1,
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e' },
+      axisLabel: { color: 'var(--text-secondary)' },
       splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
     },
     series: [
@@ -460,9 +496,9 @@ const initFeedbackChart = () => {
     ],
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#2a2a2a',
-      borderColor: '#3f3f3f',
-      textStyle: { color: '#ececec' }
+      backgroundColor: 'var(--bg-tertiary)',
+      borderColor: 'var(--border-color)',
+      textStyle: { color: 'var(--text-primary)' }
     }
   })
   
@@ -483,7 +519,7 @@ const initTopQuestionsChart = () => {
         text: '暂无数据',
         left: 'center',
         top: 'center',
-        textStyle: { color: '#8e8e8e', fontSize: 14 }
+        textStyle: { color: 'var(--text-secondary)', fontSize: 14 }
       }
     })
     return
@@ -507,14 +543,14 @@ const initTopQuestionsChart = () => {
     xAxis: {
       type: 'value',
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e' },
+      axisLabel: { color: 'var(--text-secondary)' },
       splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
     },
     yAxis: {
       type: 'category',
       data: questions.reverse(),
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#ececec', fontSize: 11 }
+      axisLabel: { color: 'var(--text-primary)', fontSize: 11 }
     },
     series: [{
       type: 'bar',
@@ -530,7 +566,7 @@ const initTopQuestionsChart = () => {
         show: true,
         position: 'right',
         formatter: '{c} 次',
-        color: '#ececec',
+        color: 'var(--text-primary)',
         fontSize: 11
       },
       barMaxWidth: 30
@@ -538,9 +574,9 @@ const initTopQuestionsChart = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#2a2a2a',
-      borderColor: '#3f3f3f',
-      textStyle: { color: '#ececec' }
+      backgroundColor: 'var(--bg-tertiary)',
+      borderColor: 'var(--border-color)',
+      textStyle: { color: 'var(--text-primary)' }
     }
   })
   
@@ -561,7 +597,7 @@ const initCategoryChart = () => {
         text: '暂无数据',
         left: 'center',
         top: 'center',
-        textStyle: { color: '#8e8e8e', fontSize: 14 }
+        textStyle: { color: 'var(--text-secondary)', fontSize: 14 }
       }
     })
     return
@@ -581,7 +617,7 @@ const initCategoryChart = () => {
         itemStyle: { color: colors[i % colors.length] }
       })),
       label: {
-        color: '#ececec',
+        color: 'var(--text-primary)',
         fontSize: 12,
         formatter: '{b}: {c}'
       },
@@ -599,9 +635,9 @@ const initCategoryChart = () => {
     tooltip: {
       trigger: 'item',
       formatter: '{b}: {c} ({d}%)',
-      backgroundColor: '#2a2a2a',
-      borderColor: '#3f3f3f',
-      textStyle: { color: '#ececec' }
+      backgroundColor: 'var(--bg-tertiary)',
+      borderColor: 'var(--border-color)',
+      textStyle: { color: 'var(--text-primary)' }
     }
   })
   
@@ -621,7 +657,7 @@ const initTokenUsageChart = () => {
         text: '暂无 Token 使用数据',
         left: 'center',
         top: 'center',
-        textStyle: { color: '#8e8e8e', fontSize: 14 }
+        textStyle: { color: 'var(--text-secondary)', fontSize: 14 }
       }
     })
     return
@@ -635,19 +671,19 @@ const initTokenUsageChart = () => {
     },
     legend: {
       data: ['Prompt Tokens', 'Completion Tokens'],
-      textStyle: { color: '#8e8e8e' },
+      textStyle: { color: 'var(--text-secondary)' },
       top: 0
     },
     xAxis: {
       type: 'category',
       data: data.map(d => d.date.slice(5)),
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e', fontSize: 11 }
+      axisLabel: { color: 'var(--text-secondary)', fontSize: 11 }
     },
     yAxis: {
       type: 'value',
       axisLine: { lineStyle: { color: '#3f3f3f' } },
-      axisLabel: { color: '#8e8e8e' },
+      axisLabel: { color: 'var(--text-secondary)' },
       splitLine: { lineStyle: { color: '#2f2f2f', type: 'dashed' } }
     },
     series: [
@@ -670,9 +706,9 @@ const initTokenUsageChart = () => {
     ],
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#2a2a2a',
-      borderColor: '#3f3f3f',
-      textStyle: { color: '#ececec' },
+      backgroundColor: 'var(--bg-tertiary)',
+      borderColor: 'var(--border-color)',
+      textStyle: { color: 'var(--text-primary)' },
       formatter: function(params) {
         let total = 0
         let html = params[0].axisValue + '<br/>'
@@ -724,6 +760,24 @@ const handleLogout = async () => {
   position: sticky;
   top: 0;
   z-index: 100;
+
+  .header-right {
+    display: flex;
+    align-items: center;
+
+    .theme-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      transition: var(--transition);
+      
+      &:hover {
+        background: var(--bg-hover);
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+      }
+    }
+  }
   
   .header-left {
     display: flex;

@@ -1,5 +1,18 @@
 <template>
   <div class="admin-login-page">
+    <div class="theme-toggle-wrapper">
+      <el-button 
+        class="theme-toggle-btn-top" 
+        circle 
+        @click="toggleTheme" 
+        :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
+      >
+        <el-icon :size="20">
+          <Sunny v-if="isDark" />
+          <Moon v-else />
+        </el-icon>
+      </el-button>
+    </div>
     <div class="login-container fade-in">
       <!-- Logo -->
       <div class="logo-section">
@@ -51,13 +64,40 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const adminStore = useAdminStore()
+
+const isDark = ref(true)
+
+// 初始化主题
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'light') {
+    isDark.value = false
+    document.documentElement.classList.remove('dark')
+  } else {
+    isDark.value = true
+    document.documentElement.classList.add('dark')
+  }
+})
+
+// 切换主题
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
+  }
+}
 
 const loading = ref(false)
 const loginFormRef = ref()
@@ -96,7 +136,32 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #1a1a2e 100%);
+  background: var(--bg-secondary);
+  position: relative;
+}
+
+.theme-toggle-wrapper {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 100;
+}
+
+.theme-toggle-btn-top {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  
+  &:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: rotate(20deg) scale(1.05);
+  }
 }
 
 .login-container {

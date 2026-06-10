@@ -3,8 +3,8 @@
 
 class Config:
     LAW_BOOK_PATH = "./Law-Book"
-    LAW_BOOK_CHUNK_SIZE = 100 # 每块切分的最大长度为100字符
-    LAW_BOOK_CHUNK_OVERLAP = 20 # 每块切分时，前后块重叠20字符以防止语义割裂
+    LAW_BOOK_CHUNK_SIZE = 1000 # 每块切分的最大长度为100字符
+    LAW_BOOK_CHUNK_OVERLAP = 100 # 每块切分时，前后块重叠20字符以防止语义割裂
     LAW_VS_COLLECTION_NAME = "law" # 法律向量数据库集合名称
     LAW_VS_SEARCH_K = 10 # 检索后最多返回10条相关内容
 
